@@ -64,7 +64,7 @@ ROLE_VIEW = {
 # no network and no account at all, which is the point: remove every provider
 # from this table and the desk still works, it just stops seeding.
 PROVIDERS = [
-    {"id": "local",      "name": "Local model",  "url": "",                                        "prefill": False},
+    {"id": "local",      "name": "Local model",  "url": "",                                        "prefill": False, "local": True},
     {"id": "claude",     "name": "Claude",       "url": "https://claude.ai/new?q=",                "prefill": True},
     {"id": "chatgpt",    "name": "ChatGPT",      "url": "https://chatgpt.com/?q=",                 "prefill": True},
     {"id": "perplexity", "name": "Perplexity",   "url": "https://www.perplexity.ai/search?q=",     "prefill": True},
@@ -548,6 +548,16 @@ def cmd_ask(a, state):
         return 2
     p = provider(a.provider or state.get("provider", "local"))
     text = seed_prompt(rows, a.note or "")
+    if p.get("local"):
+        host, model = _ai_cfg(state)
+        out, src = local_ai(text, timeout=180, host=host, model=model)
+        if out is None:
+            print(f"  no local model ({src}) — the seed prompt, to paste yourself:\n")
+            print(f"  ---- prompt ----\n{text}\n  ----")
+            return 0
+        print(f"\n  [{src}] seeded from {len(rows)} row(s)\n")
+        print(out); print("")
+        return 0
     if p["prefill"] and p["url"]:
         print(f"  open in {p['name']}:\n  {p['url']}{urllib.parse.quote(text)}")
     else:
@@ -894,12 +904,13 @@ def _absent2(what, how):
 
 
 # ── ai · a real local model client (your ollama, or any local OpenAI API) ────
-def local_ai(prompt, system="", timeout=120):
+def local_ai(prompt, system="", timeout=120, host=None, model=None):
     """Return (text, source) or (None, reason). Talks only to a model YOU run."""
     import urllib.request, urllib.error
+    # local-AI provider wiring complete: host/model come from state or env
     # 1) ollama, the one already on ilm01-lin
-    base = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
-    model = os.environ.get("MEZ_MODEL", "")
+    base = (host or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")).rstrip("/")
+    model = model or os.environ.get("MEZ_MODEL", "")
     try:
         if not model:
             with urllib.request.urlopen(base + "/api/tags", timeout=5) as r:
@@ -935,11 +946,45 @@ def local_ai(prompt, system="", timeout=120):
     return (None, "no local model — start ollama, or set MEZ_OPENAI_BASE")
 
 
+def local_models(host=None):
+    import urllib.request
+    base = (host or os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")).rstrip("/")
+    try:
+        with urllib.request.urlopen(base + "/api/tags", timeout=5) as r:
+            tags = json.loads(r.read().decode("utf-8", "replace"))
+            return [m.get("name") for m in tags.get("models", []) if m.get("name")]
+    except Exception:
+        return []
+
+def _ai_cfg(state):
+    return (state.get("ollama_host") or os.environ.get("OLLAMA_HOST"),
+            state.get("model") or os.environ.get("MEZ_MODEL"))
+
 def cmd_ai(a, state):
-    prompt = a.prompt or (sys.stdin.read() if not sys.stdin.isatty() else "")
+    rest = " ".join(a.rest) if getattr(a, "rest", None) else ""
+    host, model = _ai_cfg(state)
+    if a.prompt == "models":
+        ms = local_models(host)
+        if not ms:
+            print("\n  no local model reachable (ollama at %s). Start it, or\n"
+                  "  set OLLAMA_HOST / MEZ_OPENAI_BASE.\n"
+                  % (host or "http://127.0.0.1:11434")); return 3
+        cur = model or ms[0]
+        print("\n  local models (* = default):")
+        for m in ms: print("    %s %s" % ("*" if m == cur else " ", m))
+        print(""); return 0
+    if a.prompt == "use":
+        if not rest: print("  usage: mez ai use <model>"); return 2
+        state["model"] = rest; save_state(state); print("  default model: %s" % rest); return 0
+    if a.prompt == "host":
+        if not rest: print("  usage: mez ai host <url>"); return 2
+        state["ollama_host"] = rest; save_state(state); print("  ollama host: %s" % rest); return 0
+    prompt = (a.prompt or "") + ((" " + rest) if rest else "")
     if not prompt.strip():
-        print("  usage: mez ai \"your prompt\"   (or pipe text in)"); return 2
-    text, src = local_ai(prompt, system=a.system or "", timeout=a.timeout)
+        prompt = sys.stdin.read() if not sys.stdin.isatty() else ""
+    if not prompt.strip():
+        print("  usage: mez ai \"your prompt\"   |   mez ai models   |   mez ai use <model>"); return 2
+    text, src = local_ai(prompt, system=a.system or "", timeout=a.timeout, host=host, model=model)
     if text is None:
         return _absent2("a local model", src)
     print("\n  [%s]\n" % src)
@@ -1241,8 +1286,9 @@ def main(argv=None) -> int:
     x = sub.add_parser("xr", help="emit a dome display of the work breakdown")
     x.add_argument("--out", help="write to this file (default: stdout)")
 
-    ai = sub.add_parser("ai", help="ask a LOCAL model (ollama or local OpenAI API)")
+    ai = sub.add_parser("ai", help="local model: ask, models, use <m>, host <url>")
     ai.add_argument("prompt", nargs="?")
+    ai.add_argument("rest", nargs="*")
     ai.add_argument("--system", default="")
     ai.add_argument("--timeout", type=float, default=120.0)
 
