@@ -83,16 +83,16 @@ CAPABILITIES = [
     ("proc",        "Local and cloud process registry",          True),
     ("estate",      "Estate inventory and sync",                 True),
     ("serve",       "2D surface",                                True),
-    ("calendar",    "Calendar backed by CHAKRA",                 False),
+    ("calendar",    "Calendar backed by CHAKRA",                 True),
     ("mail",        "Email",                                     False),
     ("messaging",   "SMS and messaging",                         False),
     ("social",      "Social media",                              False),
     ("meetings",    "Meetings, briefs and summaries",            False),
     ("classes",     "Conducting classes",                        False),
-    ("embodiments", "Embodiment control (TransEg)",              False),
-    ("kundali",     "Research Kundali",                          False),
+    ("embodiments", "Embodiment control (TransEg)",              True),
+    ("kundali",     "Research Kundali",                          True),
     ("samd",        "Certification and validation, EMR as SaMD", False),
-    ("xr",          "Immersive rung, mounted in the dome",       False),
+    ("xr",          "Immersive rung, mounted in the dome",       True),
 ]
 
 
@@ -333,7 +333,7 @@ except ImportError:                       # running as a single file
 
 def _tools() -> dict:
     out = {}
-    for t in ("git", "gh", "ots", "misty", "ollama", "python3"):
+    for t in ("git", "gh", "ots", "misty", "ollama", "node", "python3"):
         out[t] = None
         for d in os.environ.get("PATH", "").split(os.pathsep):
             c = os.path.join(d, t)
@@ -581,6 +581,296 @@ def cmd_proc(a, state):
     return 0
 
 
+
+# ──────────────────────────────────────────── wiring · CONTRACT C37, MASTER 5
+# Four capabilities the desk listed as "not built" were never builds. The
+# systems exist in the estate and were read before this was written. mez asks
+# them and lays out the answer at the rung you are standing on. It computes an
+# ephemeris, a bibliometric chart, an avatar and a dome scene exactly never.
+#
+# Absent system  → a sentence and a non-zero exit.
+# Present system → its own numbers, unaltered.
+# Neither path ever prints a plausible substitute.
+
+ESTATE = os.environ.get("MEZ_ESTATE", "/shared/estate/github")
+
+# Wired and runnable, but never yet observed against a live instance from this
+# machine. doctor prints these apart from `built`. C37: partial is partial.
+UNPROVEN = {"embodiments"}
+
+# TransEg endpoints. Every one of these is named in zistgah/transeg's README.
+# Nothing is here that was inferred; an endpoint absent from that README is
+# absent from this table, and so is not offered.
+TRANSEG_ROUTES = {
+    "chat":    ("POST", "/chat",            "memory"),
+    "render":  ("POST", "/avatar/render",   "face"),
+    "export":  ("GET",  "/memory/export",   None),
+    "backup":  ("POST", "/memory/backup",   None),
+    "restore": ("POST", "/memory/restore",  None),
+    "delete":  ("POST", "/memory/delete",   None),
+}
+
+
+def _estate(slug):
+    """Path to a repo in the estate, or None. Never clones, never creates."""
+    p = os.path.join(ESTATE, slug)
+    return p if os.path.isdir(p) else None
+
+
+def _which(tool):
+    for d in os.environ.get("PATH", "").split(os.pathsep):
+        c = os.path.join(d, tool)
+        if os.path.isfile(c) and os.access(c, os.X_OK):
+            return c
+    return None
+
+
+def _absent(what, how):
+    print("")
+    print("  %s is not reachable from here." % what)
+    print("  %s" % how)
+    print("  Nothing computed, nothing guessed, nothing cached from last time.")
+    print("")
+    return 3
+
+
+# ── calendar · CHAKRA computes; mez only asks ────────────────────────────────
+def cmd_cal(a, state):
+    repo = _estate("project-ilm/chakra")
+    if not repo:
+        return _absent("CHAKRA", "expected a clone at %s/project-ilm/chakra — "
+                                 "set MEZ_ESTATE, or clone it." % ESTATE)
+    node = _which("node")
+    if not node:
+        return _absent("node", "CHAKRA's kernel is UMD JavaScript. The desk does "
+                               "not carry a second ephemeris to fall back on.")
+    bridge = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "chakra_bridge.js")
+    if not os.path.isfile(bridge):
+        return _absent("chakra_bridge.js", "it ships beside mez.py in bin/.")
+
+    init = {"refDate": a.date or dt.date.today().isoformat(),
+            "refTime": a.time, "tz": a.tz, "lat": a.lat, "lon": a.lon,
+            "zodiac": a.zodiac}
+    r = subprocess.run([node, bridge, repo, json.dumps(init)],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        print("")
+        print("  CHAKRA refused. Its words, not a paraphrase:")
+        print("")
+        for ln in (r.stderr or "").strip().splitlines()[:12]:
+            print("    " + ln)
+        print("")
+        return 4
+    try:
+        m = json.loads(r.stdout)
+    except ValueError:
+        return _absent("CHAKRA output", "the bridge returned something that is "
+                                        "not JSON. Not parsing it loosely.")
+    if a.json:
+        print(json.dumps(m, indent=2, ensure_ascii=False))
+        return 0
+
+    cal = m.get("calendars", {})
+    pan = m.get("panchanga", {})
+    mn = m.get("moon", {})
+    sn = m.get("sun", {})
+    print("")
+    print("  %s   %s   %.4fN %.4fE   tz %+.1f"
+          % (init["refDate"], init["refTime"], a.lat, a.lon, a.tz))
+    print("  computed by CHAKRA (%s) — mez did not compute one number of it"
+          % os.path.basename(repo))
+    print("")
+    for k in ("gregorian", "julianDay", "hijriSunni", "hijriShia", "solarHijri",
+              "samvatsara", "saka", "vikrama", "kali", "hebrew", "nanakshahi",
+              "chinese", "tibetan", "mayan", "age"):
+        if k in cal:
+            print("    %-12s %s" % (k, cal[k]))
+    if pan:
+        print("")
+        print("  panchanga")
+        for k in ("vara", "tithi", "nakshatra", "yoga", "karana", "manzil"):
+            if k in pan:
+                print("    %-12s %s" % (k, pan[k]))
+    if mn or sn:
+        print("")
+        if mn:
+            print("    moon         %s, %.1f%% illuminated"
+                  % (mn.get("phase", "?"), 100.0 * float(mn.get("illum", 0))))
+        if sn:
+            print("    sun          %s" % sn.get("dayState", "?"))
+    ecl = m.get("eclipses") or []
+    if ecl:
+        print("")
+        print("  eclipses within 560 days")
+        for e in ecl[:8]:
+            print("    %-8s %s%s" % (e.get("type", "?"), e.get("date", "?"),
+                                     "  central" if e.get("central") else ""))
+    print("")
+    print("  precision is CHAKRA's own — see its docs/ASSUMPTIONS.md before you")
+    print("  quote any of this in an almanac.")
+    print("")
+    return 0
+
+
+# ── Research Kundali · the repo exists; mez runs it ──────────────────────────
+def cmd_kundali(a, state):
+    repo = _estate("project-ilm/research-kundali")
+    if not repo:
+        return _absent("research-kundali",
+                       "expected a clone at %s/project-ilm/research-kundali. "
+                       "It EXISTS and is published — clone it, do not rebuild "
+                       "it." % ESTATE)
+    tool = os.path.join(repo, "kundali", "kundali.py")
+    if not os.path.isfile(tool):
+        return _absent("kundali/kundali.py",
+                       "the clone is present but the entry point is not where "
+                       "its README says. Not searching blind.")
+    out = os.path.abspath(a.out)
+    print("")
+    print("  research-kundali %s → %s" % (a.subject, out))
+    print("  sources: ORCID · OpenAlex · Crossref · DataCite. Google Scholar is")
+    print("  deliberately not queried; that is the tool's ruling, not mez's.")
+    print("")
+    r = subprocess.run([sys.executable, tool, a.subject, "--out", out])
+    if r.returncode != 0:
+        print("")
+        print("  research-kundali exited %d. Its exit code stands; mez does not"
+              % r.returncode)
+        print("  reinterpret it as success.")
+        print("")
+        return r.returncode
+    asm = os.path.join(out, "ASSUMPTIONS.md")
+    if os.path.isfile(asm):
+        print("  every decision taken without asking: %s" % asm)
+    print("")
+    return 0
+
+
+# ── embodiment · a client for the TransEg gateway, not a second avatar ───────
+def cmd_embody(a, state):
+    import urllib.error
+    import urllib.request
+
+    if a.embody_action == "routes":
+        print("")
+        print("  routes mez will call. Every one is named in zistgah/transeg's")
+        print("  README. Nothing here was inferred from a port scan or a guess.")
+        print("")
+        for k in sorted(TRANSEG_ROUTES):
+            meth, path_, stage = TRANSEG_ROUTES[k]
+            print("    %-8s %-6s %-18s %s"
+                  % (k, meth, path_,
+                     ("requires stage: " + stage) if stage else ""))
+        print("")
+        print("  Staggered upload stages, in the order the gateway gates them:")
+        print("    face · voice · documents · knowledge · memory · preferences")
+        print("    · reasoning · delegated tasks")
+        print("  No stage implicitly grants another.")
+        print("")
+        return 0
+
+    if a.embody_action not in TRANSEG_ROUTES:
+        print("  unknown action %r — `mez embody routes` lists what is offered."
+              % a.embody_action)
+        return 2
+    base = (a.base or os.environ.get("TRANSEG_BASE") or "").rstrip("/")
+    if not base:
+        return _absent("a TransEg gateway",
+                       "pass --base http://127.0.0.1:PORT or set TRANSEG_BASE. "
+                       "mez will not scan your ports looking for one.")
+    meth, path_, stage = TRANSEG_ROUTES[a.embody_action]
+    url = base + path_
+    body = None
+    if meth == "POST":
+        body = (a.data or "{}").encode("utf-8")
+    req = urllib.request.Request(url, data=body, method=meth,
+                                 headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=a.timeout) as resp:
+            payload = resp.read().decode("utf-8", "replace")
+            print("")
+            print("  %s %s → %d" % (meth, path_, resp.status))
+            print("")
+            print(payload[:4000])
+            print("")
+            return 0
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", "replace")[:800]
+        print("")
+        print("  %s %s → %d %s" % (meth, path_, e.code, e.reason))
+        if stage and e.code in (401, 403):
+            print("  the gateway gates this on stage %r. That is the staggered"
+                  % stage)
+            print("  upload working, not a fault.")
+        if detail.strip():
+            print("")
+            print(detail)
+        print("")
+        return 4
+    except Exception as e:                       # noqa: BLE001 — reported verbatim
+        print("")
+        print("  no answer from %s" % url)
+        print("  %s: %s" % (type(e).__name__, e))
+        print("  mez reports the failure. It does not simulate an embodiment.")
+        print("")
+        return 3
+
+
+# ── immersive rung · emit a display the dome already knows how to render ─────
+def cmd_xr(a, state):
+    rows = wbs_load()
+    if not rows:
+        return _absent("a work breakdown",
+                       "`mez wbs import <file.csv>` first — the dome renders "
+                       "your rows, and there are none.")
+    fams, layers = {}, {}
+    nodes = []
+    for r in rows:
+        ws = (r.get("Workstream") or "unassigned").strip() or "unassigned"
+        st = (r.get("Status") or "unset").strip() or "unset"
+        fams.setdefault(ws, len(fams))
+        layers.setdefault(st, len(layers))
+        nodes.append({
+            "id": r.get("ID") or "",
+            "label": (r.get("Task") or r.get("Title") or "")[:120],
+            "family": fams[ws],
+            "layer": layers[st],
+            "priority": (r.get("Priority") or "").strip(),
+            "role": (r.get("Role") or "").strip(),
+            "does": (r.get("Does") or "").strip(),
+        })
+    display = {
+        "id": "mez-wbs",
+        "type": "pointcloud",
+        "title": "mez · work breakdown",
+        "source": "zistgah/mez · mez xr",
+        "generated": dt.datetime.now(dt.timezone.utc)
+                       .strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "role_visibility": list(ROLES),
+        "nodes": nodes,
+        "families": [{"id": i, "name": n} for n, i in sorted(fams.items(),
+                                                             key=lambda kv: kv[1])],
+        "layers": [{"id": i, "name": n} for n, i in sorted(layers.items(),
+                                                           key=lambda kv: kv[1])],
+    }
+    text = json.dumps(display, indent=2, ensure_ascii=False)
+    if a.out:
+        with open(a.out, "w", encoding="utf-8") as fh:
+            fh.write(text + "\n")
+        print("")
+        print("  wrote %s  ·  %d nodes · %d families · %d layers"
+              % (a.out, len(nodes), len(fams), len(layers)))
+        print("")
+        print("  This is a display config, not a renderer. zistgah/dome already")
+        print("  draws pointcloud displays; mez adds no render code and no")
+        print("  second scene graph. Drop it into the dome's displays[].")
+        print("")
+    else:
+        print(text)
+    return 0
+
+
 def cmd_doctor(a, state):
     print(f"\n  mez {VERSION} · built with {BUILT_WITH}")
     print(f"  home        {HOME}")
@@ -589,14 +879,19 @@ def cmd_doctor(a, state):
     print(f"  wbs         {len(rows)} rows" if rows else "  wbs         not imported")
     print("\n  built")
     for k, d, on in CAPABILITIES:
-        if on:
+        if on and k not in UNPROVEN:
             print(f"    ok    {k:<12} {d}")
+    if any(on and k in UNPROVEN for k, _d, on in CAPABILITIES):
+        print("\n  wired, NOT proven against a live instance (CONTRACT C37)")
+        for k, d, on in CAPABILITIES:
+            if on and k in UNPROVEN:
+                print(f"    ~~    {k:<12} {d}")
     print("\n  NOT built — the desk says so rather than pretending")
     for k, d, on in CAPABILITIES:
         if not on:
             print(f"    --    {k:<12} {d}")
     print("\n  external tools")
-    for t in ("git", "gh", "ots", "misty", "ollama"):
+    for t in ("git", "gh", "ots", "misty", "ollama", "node"):
         p = None
         for d in os.environ.get("PATH", "").split(os.pathsep):
             c = os.path.join(d, t)
@@ -616,6 +911,28 @@ def main(argv=None) -> int:
     sub.add_parser("bearings", help="where you are when you sit down")
     sub.add_parser("break", help="log a break")
     sub.add_parser("doctor", help="what is built, what is not, what is installed")
+
+    c = sub.add_parser("cal", help="calendar — computed by CHAKRA, not by mez")
+    c.add_argument("--date", help="YYYY-MM-DD (default: today)")
+    c.add_argument("--time", default="12:00")
+    c.add_argument("--tz", type=float, default=5.5)
+    c.add_argument("--lat", type=float, default=17.385)
+    c.add_argument("--lon", type=float, default=78.4867)
+    c.add_argument("--zodiac", default="sidereal", choices=["sidereal", "tropical"])
+    c.add_argument("--json", action="store_true", help="CHAKRA's moment(), raw")
+
+    rk = sub.add_parser("kundali", help="Research Kundali (project-ilm/research-kundali)")
+    rk.add_argument("subject", help="ORCID, lab or institute name, or a DOI")
+    rk.add_argument("--out", default="kundali-out")
+
+    em = sub.add_parser("embody", help="TransEg gateway client")
+    em.add_argument("embody_action", nargs="?", default="routes")
+    em.add_argument("--base", help="http://127.0.0.1:PORT")
+    em.add_argument("--data", help="JSON body for POST routes")
+    em.add_argument("--timeout", type=float, default=10.0)
+
+    x = sub.add_parser("xr", help="emit a dome display of the work breakdown")
+    x.add_argument("--out", help="write to this file (default: stdout)")
 
     w = sub.add_parser("wbs", help="work breakdown")
     w.add_argument("wbs_action", nargs="?", default="list",
@@ -652,7 +969,9 @@ def main(argv=None) -> int:
     if a.cmd == "serve":
         return serve(a.port, a.role)
     fn = {"bearings": cmd_bearings, "break": cmd_break, "wbs": cmd_wbs,
-          "ask": cmd_ask, "proc": cmd_proc, "doctor": cmd_doctor}.get(a.cmd)
+          "ask": cmd_ask, "proc": cmd_proc, "doctor": cmd_doctor,
+          "cal": cmd_cal, "kundali": cmd_kundali, "embody": cmd_embody,
+          "xr": cmd_xr}.get(a.cmd)
     if not fn:
         ap.print_help()
         return 0

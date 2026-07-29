@@ -46,10 +46,14 @@ stops seeding. `local` needs no network and no account at all.
 
 ## What is not built
 
-`./mez doctor` prints it. Currently: calendar backed by CHAKRA · email · SMS and
-messaging · social media · meetings, briefs and summaries · conducting classes ·
-embodiment control · Research Kundali · certification and validation including
-EMR as SaMD · the immersive rung.
+`./mez doctor` prints it. Currently: email · SMS and messaging · social media ·
+meetings, briefs and summaries · conducting classes · certification and
+validation including EMR as SaMD.
+
+Four that were on this list are now wired — and they were never builds. CHAKRA,
+research-kundali, TransEg and the dome already existed; the desk calls them and
+computes none of it. `embody` is wired but has not been run against a live
+gateway from here, so `doctor` prints it apart from the rest (CONTRACT C37).
 
 They are named because they are coming, and marked because they are not here.
 
