@@ -46,9 +46,13 @@ stops seeding. `local` needs no network and no account at all.
 
 ## What is not built
 
-`./mez doctor` prints it. Currently: email · SMS and messaging · social media ·
-meetings, briefs and summaries · conducting classes · certification and
-validation including EMR as SaMD.
+`./mez doctor` prints it. The six that remained are now wired local-first:
+mail reads a local Maildir/mbox and composes to an outbox; msg and social
+queue to that outbox and send only through a transport you configure;
+meetings parses a local .ics and summarises a transcript via `mez ai` (your
+ollama); classes plans from a syllabus. `samd` scaffolds the C34 evidence
+framework and certifies nothing — doctor prints it as a framework, not as
+built. `mez ai` talks only to a model you run.
 
 Four that were on this list are now wired — and they were never builds. CHAKRA,
 research-kundali, TransEg and the dome already existed; the desk calls them and
