@@ -1,0 +1,18 @@
+{
+    "_type": "https://in-toto.io/Statement/v1",
+    "predicateType": "https://project-ilm.org/attestations/candor/v1",
+    "subject": [
+        {
+            "name": "zistgah/mez",
+            "digest": {
+                "gitCommit": "1c1cc8a67b4f26305bed58be978926ea09e26652"
+            }
+        }
+    ],
+    "predicate": {
+        "action": "PUSH",
+        "reason": "seed",
+        "utc": "20260729T025316Z",
+        "host": "ilm01-lin"
+    }
+}
