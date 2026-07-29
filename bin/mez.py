@@ -44,8 +44,10 @@ HOME = os.environ.get("MEZ_HOME", os.path.expanduser("~/.mez"))
 ROLES = ["engineer", "researcher", "clinician", "teacher", "learner",
          "institution", "visitor"]
 
-# Which workstreams a role is shown. The computation is identical for all of
-# them; this is presentation only (C33).
+# Which workstreams a role is shown. The role changes what is SHOWN and
+# never changes what is computed (master C33) — the numbers are identical for
+# every role, and a clinician does not pass through an engineering surface to
+# reach clinical function.
 ROLE_VIEW = {
     "engineer":    None,                       # everything
     "researcher":  ["Zenodo", "Misty / Tok", "Ontology", "Readers / sites",
@@ -320,184 +322,140 @@ def proc_list(state: dict) -> list[dict]:
     return out
 
 
-# ─────────────────────────────────────────────────────────────── 2D surface
-def page(state: dict, role: str) -> str:
+# ─────────────────────────────────────────────────────────────── web GUI
+# Web-FIRST (see mez_gui.py). The console is the same data for a tty; the
+# immersive rung mounts THIS in the dome rather than reimplementing it.
+try:
+    import mez_gui
+except ImportError:                       # running as a single file
+    mez_gui = None
+
+
+def _tools() -> dict:
+    out = {}
+    for t in ("git", "gh", "ots", "misty", "ollama", "python3"):
+        out[t] = None
+        for d in os.environ.get("PATH", "").split(os.pathsep):
+            c = os.path.join(d, t)
+            if os.path.isfile(c) and os.access(c, os.X_OK):
+                out[t] = c
+                break
+    return out
+
+
+def api_state(state: dict) -> dict:
     b = bearings(state)
-    rows = wbs_filter(wbs_load(), role=role)
-    caps_on = [c for c in CAPABILITIES if c[2]]
-    caps_off = [c for c in CAPABILITIES if not c[2]]
-
-    def esc(s):
-        return (str(s or "").replace("&", "&amp;").replace("<", "&lt;")
-                .replace(">", "&gt;").replace('"', "&quot;"))
-
-    ws = {}
-    for r in rows:
-        ws.setdefault(r["Workstream"], []).append(r)
-
-    tbl = ""
-    for name, rs in ws.items():
-        open_n = sum(1 for r in rs if r.get("Status") not in ("done",))
-        tbl += f'<h3>{esc(name)} <span class="c">{open_n} open</span></h3><table>'
-        for r in rs:
-            cls = "done" if r.get("Status") == "done" else ""
-            tbl += (f'<tr class="{cls}"><td class="id">{esc(r["ID"])}</td>'
-                    f'<td><input type="checkbox" class="pick" value="{esc(r["ID"])}"></td>'
-                    f'<td>{esc(r["Task"])}<div class="d">{esc(r.get("Detail",""))}</div></td>'
-                    f'<td class="s">{esc(r.get("Priority") or "—")}</td>'
-                    f'<td class="s">{esc(r.get("Status"))}</td>'
-                    f'<td class="s">{esc(r.get("Does it"))}</td></tr>')
-        tbl += "</table>"
-
-    return f"""<!doctype html><meta charset="utf-8">
-<title>mez — {esc(role)}</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-:root{{--ink:#1b1a17;--mut:#6d6a5f;--acc:#2f6d4f;--warn:#b4531f;--line:#ddd4c0;
-       --paper:#fffdf7;--bg:#fbf6e9}}
-*{{box-sizing:border-box}}
-body{{margin:0;background:var(--bg);color:var(--ink);
- font:15px/1.6 "Iowan Old Style",Palatino,Georgia,serif}}
-header{{background:var(--paper);border-bottom:1px solid var(--line);padding:14px 20px;
- display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}}
-header h1{{margin:0;font-size:19px}} header .t{{color:var(--mut);font-size:13px}}
-nav a{{font:12px system-ui;color:var(--mut);text-decoration:none;margin-right:9px;
- padding:3px 8px;border:1px solid var(--line);border-radius:20px}}
-nav a.on{{background:var(--acc);color:#fff;border-color:var(--acc)}}
-main{{max-width:1000px;margin:0 auto;padding:20px}}
-.card{{background:var(--paper);border:1px solid var(--line);border-radius:12px;
- padding:16px 18px;margin-bottom:16px}}
-h2{{font:13px system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);
- margin:0 0 10px}}
-h3{{font-size:15px;margin:18px 0 6px}} h3 .c{{color:var(--mut);font:11px system-ui}}
-table{{width:100%;border-collapse:collapse;font-size:13.5px}}
-td{{padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}}
-td.id{{color:var(--mut);font:11px ui-monospace;width:52px}}
-td.s{{color:var(--mut);font:11px system-ui;white-space:nowrap}}
-.d{{color:var(--mut);font-size:12px}}
-tr.done td{{opacity:.45;text-decoration:line-through}}
-.big{{font-size:26px}} .grid{{display:flex;gap:26px;flex-wrap:wrap}}
-.grid div span{{display:block;color:var(--mut);font:11px system-ui}}
-.off{{color:var(--mut)}} .off b{{color:var(--warn);font-weight:normal}}
-button,select{{font:13px system-ui;padding:7px 11px;border:1px solid var(--line);
- border-radius:8px;background:#fff;cursor:pointer}}
-button.go{{background:var(--acc);color:#fff;border-color:var(--acc)}}
-footer{{max-width:1000px;margin:0 auto;padding:0 20px 40px;color:var(--mut);font-size:12px}}
-</style>
-<header>
-  <h1>mez</h1>
-  <span class="t">میز · {esc(b['now'])} · {esc(b['part_of_day'])}</span>
-  <nav>{"".join(f'<a class="{"on" if r==role else ""}" href="/?role={r}">{r}</a>'
-                for r in ROLES)}</nav>
-</header>
-<main>
-
-<div class="card">
-  <h2>Bearings</h2>
-  <div class="grid">
-    <div><span>at the desk</span><b class="big">{b['elapsed_min']}m</b></div>
-    <div><span>since a break</span><b class="big">{b['since_break_min']}m</b></div>
-    <div><span>unblocked</span><b class="big">{b['ready']}</b></div>
-    <div><span>built, never run</span><b class="big">{len(b['cheapest'])}</b></div>
-    <div><span>yours alone</span><b class="big">{len(b['yours'])}</b></div>
-  </div>
-  {"<p class='off'><b>You have been at this "
-   + str(b['since_break_min']) + " minutes without logging a break.</b> "
-   "<code>mez break</code></p>" if b['since_break_min'] >= 90 else ""}
-</div>
-
-<div class="card">
-  <h2>Cheapest first — built, never run</h2>
-  {"".join(f'<div>· [{esc(r["ID"])}] {esc(r["Task"])}</div>' for r in b['cheapest'])
-   or '<div class="off">nothing waiting</div>'}
-</div>
-
-<div class="card">
-  <h2>Seed a conversation</h2>
-  <p class="off">Tick any rows below, choose where it goes, and the prompt is built
-  from your own breakdown. Nothing is sent until you click.</p>
-  <select id="prov">{"".join(f'<option value="{p["id"]}">{p["name"]}'
-        f'{"" if p["prefill"] else " ·copy"}</option>' for p in PROVIDERS)}</select>
-  <button class="go" id="ask">Ask</button>
-  <button id="copy">Copy prompt</button>
-</div>
-
-<div class="card">
-  <h2>Work — {esc(role)} view</h2>
-  <p class="off">The role changes what is shown. It never changes what is computed.</p>
-  {tbl or '<div class="off">No WBS loaded. <code>mez wbs import WBS.csv</code></div>'}
-</div>
-
-<div class="card">
-  <h2>What this desk can and cannot do yet</h2>
-  <div>{" · ".join(esc(c[1]) for c in caps_on)}</div>
-  <p class="off">Not built: <b>{" · ".join(esc(c[1]) for c in caps_off)}</b></p>
-</div>
-
-</main>
-<footer>mez {VERSION} · built with {BUILT_WITH} · local-first, no account, no vendor ·
-runs with the network unplugged · © 1993–2026 Abhishek Choudhary. All rights reserved. AyeAI.</footer>
-<script>
-const PROV={json.dumps(PROVIDERS)};
-function picked(){{return [...document.querySelectorAll('.pick:checked')].map(c=>c.value);}}
-async function prompt_(){{
-  const ids=picked(); if(!ids.length){{alert('Tick a row first');return null;}}
-  const r=await fetch('/prompt?ids='+encodeURIComponent(ids.join(',')));
-  return await r.text();
-}}
-document.getElementById('ask').onclick=async()=>{{
-  const t=await prompt_(); if(!t) return;
-  const p=PROV.find(x=>x.id===document.getElementById('prov').value);
-  if(p.prefill&&p.url) window.open(p.url+encodeURIComponent(t),'_blank','noopener');
-  else {{ await navigator.clipboard.writeText(t).catch(()=>{{}});
-         alert('Prompt copied — paste it into '+p.name);
-         if(p.url) window.open(p.url,'_blank','noopener'); }}
-}};
-document.getElementById('copy').onclick=async()=>{{
-  const t=await prompt_(); if(!t) return;
-  await navigator.clipboard.writeText(t).catch(()=>{{}});
-  document.getElementById('copy').textContent='Copied';
-  setTimeout(()=>document.getElementById('copy').textContent='Copy prompt',1400);
-}};
-</script>"""
+    save_state(state)
+    return {
+        "version": VERSION, "built_with": BUILT_WITH,
+        "roles": ROLES, "providers": PROVIDERS,
+        "caps": [list(c) for c in CAPABILITIES],
+        "tools": _tools(),
+        "owned": _owned_load(),
+        "wbs_rows": b["wbs_rows"],
+        "bearings": b,
+    }
 
 
 def serve(port: int, role: str) -> int:
+    if mez_gui is None:
+        print("  mez_gui.py not found beside mez.py — the web surface needs it.")
+        return 2
     state = load_state()
 
     class H(http.server.BaseHTTPRequestHandler):
+        server_version = f"mez/{VERSION}"
+
         def log_message(self, *a):
             pass
+
+        def _send(self, body, ctype="application/json", code=200):
+            if isinstance(body, (dict, list)):
+                body = json.dumps(body)
+            if isinstance(body, str):
+                body = body.encode()
+            self.send_response(code)
+            self.send_header("Content-Type", ctype + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            # the desk is loopback-only; nothing here is meant to be embedded
+            self.send_header("X-Frame-Options", "DENY")
+            self.end_headers()
+            self.wfile.write(body)
 
         def do_GET(self):
             u = urllib.parse.urlparse(self.path)
             q = urllib.parse.parse_qs(u.query)
-            if u.path == "/prompt":
+            p = u.path
+            if p == "/":
+                return self._send(mez_gui.shell(VERSION, BUILT_WITH), "text/html")
+            if p == "/app.css":
+                return self._send(mez_gui.APP_CSS, "text/css")
+            if p == "/app.js":
+                return self._send(mez_gui.APP_JS, "application/javascript")
+            if p == "/sw.js":
+                return self._send(mez_gui.SW_JS, "application/javascript")
+            if p == "/icon.svg":
+                return self._send(mez_gui.ICON, "image/svg+xml")
+            if p == "/manifest.webmanifest":
+                return self._send(mez_gui.MANIFEST, "application/manifest+json")
+            if p == "/api/state":
+                return self._send(api_state(load_state()))
+            if p == "/api/wbs":
+                r = (q.get("role", [role])[0])
+                r = r if r in ROLES else role
+                return self._send({"role": r, "rows": wbs_filter(wbs_load(), role=r)})
+            if p == "/api/prompt":
                 ids = set((q.get("ids", [""])[0]).split(","))
-                rows = [r for r in wbs_load() if r["ID"] in ids]
-                body = seed_prompt(rows).encode()
-                self.send_response(200)
-                self.send_header("Content-Type", "text/plain; charset=utf-8")
-                self.end_headers()
-                self.wfile.write(body)
-                return
-            r = q.get("role", [role])[0]
-            r = r if r in ROLES else role
-            body = page(load_state(), r).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
-            self.wfile.write(body)
+                rows = [x for x in wbs_load() if x["ID"] in ids]
+                return self._send(seed_prompt(rows), "text/plain")
+            return self._send({"error": "not found"}, code=404)
+
+        def do_POST(self):
+            u = urllib.parse.urlparse(self.path)
+            n = int(self.headers.get("Content-Length") or 0)
+            raw = self.rfile.read(n) if n else b"{}"
+            try:
+                data = json.loads(raw or b"{}")
+            except ValueError:
+                return self._send({"error": "bad json"}, code=400)
+
+            if u.path == "/api/break":
+                st = load_state()
+                st.setdefault("day", {})["last_break"] = \
+                    dt.datetime.now().isoformat(timespec="seconds")
+                save_state(st)
+                return self._send({"ok": True})
+
+            if u.path.startswith("/api/wbs/"):
+                rid = urllib.parse.unquote(u.path[len("/api/wbs/"):])
+                rows = wbs_load()
+                hit = None
+                for r in rows:
+                    if r["ID"] == rid:
+                        for k, v in data.items():
+                            if k in r:
+                                r[k] = v
+                                # touching a cell here makes it HIS — an import
+                                # will not clear it afterwards
+                                if k in OWNED:
+                                    _owned_mark(rid, k)
+                        hit = r
+                if hit is None:
+                    return self._send({"error": "no such row"}, code=404)
+                wbs_save(rows)
+                return self._send({"ok": True, "row": hit})
+
+            return self._send({"error": "not found"}, code=404)
 
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("127.0.0.1", port), H) as srv:
-        print(f"  mez {VERSION} on http://127.0.0.1:{port}/  role={role}")
-        print("  bound to loopback only — nothing is exposed to the network")
-        print("  Ctrl-C to stop")
+        print(f"\n  mez {VERSION} — the desk")
+        print(f"  http://127.0.0.1:{port}/     role={role}")
+        print("  loopback only · installable · works offline · Ctrl-C to stop\n")
         try:
             srv.serve_forever()
         except KeyboardInterrupt:
-            print("\n  stopped")
+            print("  stopped")
     return 0
 
 
