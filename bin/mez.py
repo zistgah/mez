@@ -83,6 +83,8 @@ CAPABILITIES = [
     ("proc",        "Local and cloud process registry",          True),
     ("estate",      "Estate inventory and sync",                 True),
     ("serve",       "2D surface",                                True),
+    ("aab",         "Paint and build studio (AAB/VGC)",          True),
+    ("ilm",         "Native-script coding surface (ILM)",        True),
     ("calendar",    "Calendar backed by CHAKRA",                 True),
     ("mail",        "Email",                                     True),
     ("messaging",   "SMS and messaging",                         True),
@@ -1217,6 +1219,100 @@ def cmd_samd(a, state):
     return 0
 
 
+
+# ───────────────────────────────────── desk tool launchers (CONTRACT C38) ────
+# The desk opens tools that are their own repos. It resolves the CANONICAL
+# mirror, reports version + sync, clones from the forge on a miss, and opens by
+# DISCOVERING the entrypoint — it reimplements nothing and edits nothing.
+TOOLS = {
+    "aab":     {"slug": "zistgah/aab",               "what": "paint & build studio (VGC)"},
+    "ilm":     {"slug": "project-ilm/ilm",           "what": "native-script coding"},
+    "kundali": {"slug": "project-ilm/research-kundali", "what": "research reader"},
+    "fakir":   {"slug": "zistgah/fakir",             "what": "UKOP kernel / dome explorer"},
+    "misty":   {"slug": "project-ilm/misty-doi",     "what": "DOI provenance"},
+}
+MEZ_ESTATE = os.environ.get("MEZ_ESTATE", "/shared/estate/github")
+MEZ_FORGE  = os.environ.get("MEZ_FORGE", "https://github.com")
+
+def _git(rd, *a, timeout=30):
+    try:
+        return subprocess.run(["git","-C",rd,*a], capture_output=True, text=True, timeout=timeout)
+    except Exception:
+        class R: returncode=1; stdout=""; stderr=""
+        return R()
+
+def _resolve_canonical(slug):
+    """(path, report) for the canonical mirror; clone from the forge on a miss.
+    Returns (None, reason) if it cannot be resolved — never a guess."""
+    p = os.path.join(MEZ_ESTATE, slug)
+    if os.path.isdir(os.path.join(p, ".git")):
+        _git(p, "fetch", "--quiet")
+        head = (_git(p, "rev-parse", "--short", "HEAD").stdout or "?").strip()
+        tag  = (_git(p, "describe", "--tags", "--always").stdout or "?").strip()
+        up   = (_git(p, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}").stdout or "").strip()
+        if not up: sync = "no-upstream"
+        else:
+            behind = (_git(p, "rev-list", "--count", "HEAD..@{u}").stdout or "0").strip()
+            ahead  = (_git(p, "rev-list", "--count", "@{u}..HEAD").stdout or "0").strip()
+            sync = "synced" if behind=="0" and ahead=="0" else \
+                   ("behind:"+behind if ahead=="0" else ("ahead:"+ahead if behind=="0" else "diverged"))
+        return p, "HEAD %s · %s · origin:%s" % (head, tag, sync)
+    if os.path.exists(p):
+        return None, "%s exists but is not a git repo — refusing to treat it as canonical" % p
+    # clone-on-miss (C38 step 2)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    r = _git(os.path.dirname(p), "clone", "--quiet", MEZ_FORGE+"/"+slug, p, timeout=300)
+    if r.returncode != 0:
+        return None, "no canonical mirror and clone of %s/%s failed — give me the right slug (C38 step 3)" % (MEZ_FORGE, slug)
+    head = (_git(p, "rev-parse", "--short", "HEAD").stdout or "?").strip()
+    return p, "cloned fresh · HEAD %s" % head
+
+def _open_repo(path, name):
+    """Open a resolved repo by discovering its entrypoint. Serves a PWA on
+    loopback if it is one; else points at what it found. Never fabricates."""
+    import http.server, socketserver, functools
+    for rel in ("docs/index.html", "index.html", "public/index.html"):
+        idx = os.path.join(path, rel)
+        if os.path.isfile(idx):
+            root = os.path.dirname(idx)
+            port = int(os.environ.get("MEZ_TOOL_PORT", "7374"))
+            print("\n  %s → serving %s at http://127.0.0.1:%d/  (Ctrl-C to stop)\n"
+                  % (name, os.path.relpath(root, path) or ".", port))
+            os.chdir(root)
+            h = functools.partial(http.server.SimpleHTTPRequestHandler)
+            with socketserver.TCPServer(("127.0.0.1", port), h) as srv:
+                try: srv.serve_forever()
+                except KeyboardInterrupt: print("\n  stopped.\n")
+            return 0
+    for rel in ("bin/serve", "serve.sh", "scripts/serve.sh", "Makefile"):
+        c = os.path.join(path, rel)
+        if os.path.isfile(c):
+            print("\n  %s → entrypoint: %s" % (name, c))
+            print("  run it there; the desk does not wrap what it did not write.\n")
+            return 0
+    print("\n  %s → no server entrypoint found. The repo is here, open it directly:\n  %s\n" % (name, path))
+    return 0
+
+def cmd_open(a, state):
+    key = a.tool
+    slug = a.slug or (TOOLS[key]["slug"] if key in TOOLS else key)
+    if "/" not in slug:
+        print("  '%s' is not a known tool and not an org/repo slug." % key)
+        print("  known: %s" % ", ".join(sorted(TOOLS)))
+        print("  or:    mez open <org>/<repo>"); return 2
+    path, rep = _resolve_canonical(slug)
+    if path is None:
+        print("\n  %s is not reachable." % slug); print("  %s\n" % rep); return 3
+    print("  %s  [%s]" % (slug, rep))
+    return _open_repo(path, key if key in TOOLS else slug)
+
+def cmd_aab(a, state):
+    a.tool = "aab"; a.slug = getattr(a, "slug", None); return cmd_open(a, state)
+
+def cmd_ilm(a, state):
+    a.tool = "ilm"; a.slug = getattr(a, "slug", None); return cmd_open(a, state)
+
+
 def cmd_doctor(a, state):
     print(f"\n  mez {VERSION} · built with {BUILT_WITH}")
     print(f"  home        {HOME}")
@@ -1319,6 +1415,13 @@ def main(argv=None) -> int:
     sd = sub.add_parser("samd", help="scaffold the C34 SaMD evidence framework")
     sd.add_argument("--out")
 
+    op = sub.add_parser("open", help="open a desk tool by name or org/repo (C38)")
+    op.add_argument("tool"); op.add_argument("--slug")
+    ab = sub.add_parser("aab", help="open the paint & build studio (AAB/VGC)")
+    ab.add_argument("--slug")
+    il = sub.add_parser("ilm", help="open the native-script coding surface (ILM)")
+    il.add_argument("--slug")
+
     w = sub.add_parser("wbs", help="work breakdown")
     w.add_argument("wbs_action", nargs="?", default="list",
                    choices=["list", "import", "export", "set"])
@@ -1358,7 +1461,8 @@ def main(argv=None) -> int:
           "cal": cmd_cal, "kundali": cmd_kundali, "embody": cmd_embody,
           "xr": cmd_xr, "ai": cmd_ai, "mail": cmd_mail, "msg": cmd_msg,
           "social": cmd_social, "meetings": cmd_meetings, "classes": cmd_classes,
-          "samd": cmd_samd}.get(a.cmd)
+          "samd": cmd_samd, "open": cmd_open, "aab": cmd_aab,
+          "ilm": cmd_ilm}.get(a.cmd)
     if not fn:
         ap.print_help()
         return 0
