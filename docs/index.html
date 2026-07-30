@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14161b">
+<title>mez — the desk</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  /* mez — the desk. A local-first command surface you enter by role.
+     The role you take floods the desk with its colour: that is the UI's
+     personality. Ink-slate base; role hue set at runtime on :root. */
+  :root{
+    --bg:#14161b; --panel:#1c1f27; --panel-2:#232733; --line:#2c313d;
+    --ink:#e7e9ee; --muted:#8a90a0; --faint:#5b6273;
+    --accent:#6ea8fe; --accent-dim:#6ea8fe55; --accent-ink:#0b0d12;
+    --r:14px; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, var(--accent-dim), transparent 60%),
+      var(--bg);
+    color:var(--ink); font-family:var(--sans);
+    -webkit-font-smoothing:antialiased; transition:--accent .4s;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .wordmark{font-family:var(--sans);font-weight:800;letter-spacing:-.02em}
+  .miz{font-size:1.15em;color:var(--accent);text-shadow:0 0 22px var(--accent-dim)}
+
+  /* ── entry: take a seat ─────────────────────────────────────────── */
+  #entry{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;
+    align-items:center;gap:28px;padding:32px 20px;text-align:center}
+  #entry h1{font-size:clamp(30px,7vw,52px);margin:0;font-weight:800;letter-spacing:-.03em}
+  #entry .sub{color:var(--muted);max-width:44ch;margin:0;line-height:1.5}
+  .lamp{font-size:clamp(48px,14vw,96px);line-height:1;filter:drop-shadow(0 0 30px var(--accent-dim))}
+  .roles{display:grid;gap:12px;width:min(760px,100%);
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .role{cursor:pointer;border:1px solid var(--line);background:var(--panel);
+    border-radius:var(--r);padding:16px 14px;text-align:left;color:var(--ink);
+    display:flex;flex-direction:column;gap:6px;transition:transform .12s,border-color .12s,box-shadow .12s}
+  .role:hover,.role:focus-visible{transform:translateY(-3px);outline:none;
+    border-color:var(--rc);box-shadow:0 8px 30px -12px var(--rc)}
+  .role .dot{width:10px;height:10px;border-radius:50%;background:var(--rc);box-shadow:0 0 12px var(--rc)}
+  .role .nm{font-weight:700;font-size:16px}
+  .role .role-do{color:var(--muted);font-size:12.5px;line-height:1.35}
+  .foot{color:var(--faint);font-size:12px;max-width:52ch;line-height:1.5}
+  .foot code{font-family:var(--mono);color:var(--muted)}
+
+  /* ── desk ───────────────────────────────────────────────────────── */
+  #desk{display:none;min-height:100dvh;grid-template-columns:248px 1fr}
+  #desk.on{display:grid}
+  @media(max-width:720px){#desk.on{grid-template-columns:1fr}}
+  .rail{border-right:1px solid var(--line);background:var(--panel);padding:18px 16px;
+    display:flex;flex-direction:column;gap:16px}
+  @media(max-width:720px){.rail{border-right:none;border-bottom:1px solid var(--line)}}
+  .seat{display:flex;align-items:center;gap:10px}
+  .seat .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+  .seat .who{font-weight:800;font-size:18px;letter-spacing:-.01em}
+  .seat .what{color:var(--muted);font-size:12px}
+  .rail .switch{margin-top:auto;font-size:12px;color:var(--muted);
+    background:none;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}
+  .rail .switch:hover{border-color:var(--accent);color:var(--ink)}
+  .cfg{border:1px dashed var(--line);border-radius:12px;padding:12px;font-size:12.5px;color:var(--muted)}
+  .cfg b{color:var(--ink)} .cfg .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .btn{font-family:var(--sans);font-size:12.5px;cursor:pointer;border-radius:10px;
+    border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);
+    padding:8px 12px;font-weight:600}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .main{padding:22px clamp(16px,3vw,34px);min-width:0}
+  .lede{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px}
+  .lede h2{margin:0;font-size:clamp(22px,4vw,30px);font-weight:800;letter-spacing:-.02em}
+  .lede .stat{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .panels{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+    padding:16px;min-width:0;animation:rise .4s both}
+  .card h3{margin:0 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+  .card .cap{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+  .list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .item{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+  .item .id{font-family:var(--mono);font-size:11.5px;color:var(--faint);min-width:38px}
+  .item .st{font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:6px;
+    border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+  .big{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--ink)}
+  .empty{color:var(--muted);font-size:13.5px;line-height:1.5}
+  .empty .btn{margin-top:10px}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel-2);
+    border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;
+    box-shadow:0 10px 40px -12px #000;display:none;z-index:9}
+  .toast.on{display:block;animation:rise .25s both}
+  input[type=file]{display:none}
+  a.src{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-dim)}
+</style>
+</head>
+<body>
+
+<section id="entry">
+  <div class="lamp wordmark miz">میز</div>
+  <div>
+    <h1 class="wordmark">Take a seat at the desk.</h1>
+    <p class="sub">mez is one desk with many seats. Pick the seat you're sitting in —
+      it decides what the desk shows you, not what it computes. The same work,
+      framed for the way you work.</p>
+  </div>
+  <div class="roles" id="roleGrid" role="listbox" aria-label="Choose your role"></div>
+  <p class="foot">Runs entirely in your browser. Load your desk with a
+    <code>WBS.csv</code> or <code>state.json</code> after you sit down — nothing
+    is uploaded anywhere. Installable: add it to your home screen or dock to keep
+    it a tap away.</p>
+</section>
+
+<main id="desk" aria-live="polite">
+  <aside class="rail">
+    <div class="seat">
+      <span class="dot"></span>
+      <div><div class="who" id="seatWho">—</div><div class="what" id="seatWhat"></div></div>
+    </div>
+    <div class="cfg">
+      <b id="cfgState">No desk loaded</b>
+      <div id="cfgHint">Load a WBS.csv or state.json to fill the desk.</div>
+      <div class="row">
+        <button class="btn" id="loadBtn">Load file</button>
+        <button class="btn ghost" id="folderBtn" style="display:none">Open folder</button>
+        <button class="btn ghost" id="sampleBtn">Use sample</button>
+      </div>
+    </div>
+    <button class="switch" id="switchBtn">↩ Change seat</button>
+  </aside>
+
+  <section class="main">
+    <div class="lede">
+      <h2 id="deskTitle">The desk</h2>
+      <div class="stat" id="deskStat"></div>
+    </div>
+    <div class="panels" id="panels"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".csv,.json,text/csv,application/json">
+
+<script>
+/* mez — the desk. Vanilla, offline-capable, no build step, no upload.
+   The role personalises WHAT IS SHOWN, never what the data is (CONTRACT C33). */
+"use strict";
+
+const ROLES = [
+  {id:"engineer",   nm:"Engineer",    c:"#6ea8fe", does:"build, break, ship",
+   panels:["open","blocked","proc"]},
+  {id:"researcher", nm:"Researcher",  c:"#b58cff", does:"papers, DOIs, provenance",
+   panels:["research","open","dois"]},
+  {id:"clinician",  nm:"Clinician",   c:"#33c6a6", does:"care, EMR, safety",
+   panels:["clinical","safety","open"]},
+  {id:"teacher",    nm:"Teacher",     c:"#f2b53b", does:"classes, meetings, briefs",
+   panels:["teaching","meetings","open"]},
+  {id:"learner",    nm:"Learner",     c:"#8fd14f", does:"learn, practise, ask",
+   panels:["learn","open"]},
+  {id:"institution",nm:"Institution", c:"#7b8cff", does:"estate, governance, licence",
+   panels:["estate","governance","open"]},
+  {id:"visitor",    nm:"Visitor",     c:"#9aa2b4", does:"read-only overview",
+   panels:["overview"]},
+];
+const KEY_ROLE = "mez.role";
+let DESK = {rows:[], loaded:false, source:""};
+
+/* ---- tiny helpers ---- */
+const $ = s => document.querySelector(s);
+const el = (t,c,txt)=>{const e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;};
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._);t._=setTimeout(()=>t.classList.remove("on"),2600);}
+function setAccent(c){const rs=document.documentElement.style;rs.setProperty("--accent",c);
+  rs.setProperty("--accent-dim",c+"44");document.querySelector('meta[name=theme-color]').setAttribute("content",c);}
+
+/* ---- CSV / JSON config parsing (client-side, no upload) ---- */
+function parseCSV(text){
+  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.length);
+  if(!lines.length) return [];
+  const split=l=>{const o=[];let cur="",q=false;
+    for(const ch of l){if(ch=='"')q=!q;else if(ch==","&&!q){o.push(cur);cur="";}else cur+=ch;}
+    o.push(cur);return o.map(s=>s.trim());};
+  const head=split(lines[0]);
+  return lines.slice(1).map(l=>{const c=split(l),r={};head.forEach((h,i)=>r[h]=c[i]||"");return r;});
+}
+function normalise(rows){
+  return rows.map(r=>({
+    id:r.ID||r.id||"",
+    ws:r.Workstream||r.workstream||r.Area||"",
+    task:r.Task||r.Title||r.task||"",
+    status:(r.Status||r.status||"").toLowerCase(),
+    priority:r.Priority||r.priority||"",
+    role:(r.Role||r.role||"").toLowerCase(),
+    detail:r.Detail||r.detail||"",
+    blocked:r["Blocked by"]||r.blocked||"",
+  }));
+}
+function loadText(text,source){
+  let rows=[];
+  try{
+    const j=JSON.parse(text);
+    const arr=Array.isArray(j)?j:(j.rows||j.wbs||j.nodes||[]);
+    rows=normalise(arr);
+  }catch(_){ rows=normalise(parseCSV(text)); }
+  if(!rows.length){toast("No rows found in that file.");return;}
+  DESK={rows,loaded:true,source};
+  $("#cfgState").textContent=rows.length+" items loaded";
+  $("#cfgHint").textContent="from "+source;
+  render();
+  toast("Desk loaded — "+rows.length+" items");
+}
+
+/* ---- role-specific views: same data, different framing (C33) ---- */
+const byStatus=(rows,...ss)=>rows.filter(r=>ss.includes(r.status));
+const openItems=r=>r.filter(x=>x.status!=="done"&&x.status!=="closed");
+function itemLi(r){
+  const li=el("li","item");
+  li.appendChild(el("span","id",r.id||"·"));
+  const body=el("div","",""); body.style.flex="1";
+  body.appendChild(el("div","",(r.ws?r.ws+" — ":"")+ (r.task||"(untitled)")));
+  li.appendChild(body);
+  if(r.status) li.appendChild(el("span","st",r.status));
+  return li;
+}
+function listCard(title,cap,rows){
+  const c=el("div","card");
+  c.appendChild(el("h3",null,title));
+  c.appendChild(el("p","cap",cap));
+  if(!rows.length){c.appendChild(el("p","empty","Nothing here yet."));return c;}
+  const ul=el("ul","list"); rows.slice(0,12).forEach(r=>ul.appendChild(itemLi(r)));
+  c.appendChild(ul);
+  if(rows.length>12) c.appendChild(el("p","cap",(rows.length-12)+" more…"));
+  return c;
+}
+function statCard(title,cap,big){const c=el("div","card");c.appendChild(el("h3",null,title));
+  c.appendChild(el("p","cap",cap));c.appendChild(el("div","big",String(big)));return c;}
+
+const PANELS={
+  open:      d=>listCard("Open work","Unfinished items, most actionable first.",openItems(d)),
+  blocked:   d=>listCard("Blocked","Waiting on something — unblock these to move.",d.filter(r=>r.blocked)),
+  proc:      d=>listCard("In progress","Marked active on the desk.",byStatus(d,"in-progress","active","doing","wip")),
+  research:  d=>listCard("Research thread","Items in research, papers and provenance workstreams.",
+               d.filter(r=>/research|paper|doi|proven|kundali|pedler/i.test(r.ws+r.task))),
+  dois:      d=>statCard("DOI-bearing items","Items whose text names a Zenodo DOI.",
+               d.filter(r=>/10\.5281\/zenodo/i.test(r.detail+r.task)).length),
+  clinical:  d=>listCard("Clinical","Care, EMR and SaMD-tagged items.",
+               d.filter(r=>/clinic|emr|samd|patient|health|care/i.test(r.ws+r.task))),
+  safety:    d=>listCard("Safety & validation","Anything tagged validation, safety or certification.",
+               d.filter(r=>/valid|safety|cert|risk|litig/i.test(r.ws+r.task))),
+  teaching:  d=>listCard("Teaching","Classes and curriculum items.",
+               d.filter(r=>/class|teach|syllab|course|lesson/i.test(r.ws+r.task))),
+  meetings:  d=>listCard("Meetings & briefs","Items that read like meetings, briefs or summaries.",
+               d.filter(r=>/meet|brief|summar|standup|review/i.test(r.ws+r.task))),
+  learn:     d=>listCard("To learn","Open items, framed as a learning path.",openItems(d).slice(0,10)),
+  estate:    d=>{const ws={};d.forEach(r=>{const k=r.ws||"(unassigned)";ws[k]=(ws[k]||0)+1;});
+               const c=el("div","card");c.appendChild(el("h3",null,"Estate by workstream"));
+               c.appendChild(el("p","cap","How the desk's work spreads across areas."));
+               const ul=el("ul","list");Object.entries(ws).sort((a,b)=>b[1]-a[1]).slice(0,14)
+                 .forEach(([k,n])=>{const li=el("li","item");li.appendChild(el("span","id",String(n)));
+                   li.appendChild(el("div","",k));ul.appendChild(li);});c.appendChild(ul);return c;},
+  governance:d=>statCard("Items with a status","Share of the desk that is actually tracked.",
+               d.filter(r=>r.status).length+" / "+d.length),
+  overview:  d=>statCard("Items on the desk","A read-only count of everything loaded.",d.length),
+};
+
+function render(){
+  const role=ROLES.find(r=>r.id===localStorage.getItem(KEY_ROLE))||ROLES[0];
+  setAccent(role.c);
+  $("#seatWho").textContent=role.nm;
+  $("#seatWhat").textContent=role.does;
+  $("#deskTitle").textContent=DESK.loaded?("The "+role.nm.toLowerCase()+"’s desk"):"The desk, waiting";
+  const panels=$("#panels"); panels.innerHTML="";
+  if(!DESK.loaded){
+    const c=el("div","card");
+    c.appendChild(el("h3",null,"Empty desk"));
+    c.appendChild(el("p","empty","This is the "+role.nm+" seat. Load a WBS.csv or state.json "
+      +"to fill it — the desk will show only what this seat needs. Nothing leaves your browser."));
+    const b=el("button","btn","Load your desk"); b.onclick=pickFile; c.appendChild(b);
+    panels.appendChild(c);
+    $("#deskStat").textContent="no file loaded";
+    return;
+  }
+  $("#deskStat").textContent=DESK.rows.length+" items · "+openItems(DESK.rows).length+" open · seat: "+role.id;
+  role.panels.forEach((p,i)=>{const node=(PANELS[p]||PANELS.overview)(DESK.rows);
+    node.style.animationDelay=(i*0.05)+"s";panels.appendChild(node);});
+}
+
+/* ---- entry / seat selection ---- */
+function buildRoleGrid(){
+  const g=$("#roleGrid"); g.innerHTML="";
+  ROLES.forEach(r=>{
+    const b=el("button","role"); b.style.setProperty("--rc",r.c); b.setAttribute("role","option");
+    b.onmouseenter=()=>setAccent(r.c); b.onfocus=()=>setAccent(r.c);
+    const d=el("span","dot"); b.appendChild(d);
+    b.appendChild(el("span","nm",r.nm));
+    b.appendChild(el("span","role-do",r.does));
+    b.onclick=()=>sit(r.id);
+    g.appendChild(b);
+  });
+}
+function sit(id){
+  localStorage.setItem(KEY_ROLE,id);
+  $("#entry").style.display="none";
+  $("#desk").classList.add("on");
+  render();
+}
+function unseat(){
+  $("#desk").classList.remove("on");
+  $("#entry").style.display="flex";
+  const role=ROLES.find(r=>r.id===localStorage.getItem(KEY_ROLE));
+  if(role) setAccent(role.c);
+}
+
+/* ---- loading local config ---- */
+function pickFile(){$("#fileInput").click();}
+$("#fileInput").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader(); rd.onload=()=>loadText(rd.result,f.name); rd.readAsText(f);
+});
+async function openFolder(){
+  try{
+    const dir=await window.showDirectoryPicker();
+    for await(const [name,h] of dir.entries()){
+      if(h.kind==="file" && /(^WBS\.csv$|state\.json$)/i.test(name)){
+        const f=await h.getFile(); loadText(await f.text(),name); return;
+      }
+    }
+    toast("No WBS.csv or state.json in that folder.");
+  }catch(_){/* user cancelled */}
+}
+const SAMPLE=`ID,Workstream,Task,Status,Priority,Role,Detail,Blocked by
+1.1,governance,Seed estate lifecycle into the contract,open,P1,institution,,
+1.2,governance,CLA that preserves dual-licensing,open,P1,institution,,
+2.1,mez,Local-AI provider wiring,done,P1,engineer,,
+2.2,mez,Ship the desk as a PWA,in-progress,P1,engineer,,
+3.1,doi,Affiliation pass across 167 records,open,P1,researcher,cites 10.5281/zenodo.17497559,
+3.2,doi,Resolve AAB split lineage,blocked,P2,researcher,,Zenodo support
+4.1,transeg,Fix the local avatar path,open,P1,engineer,,
+5.1,teaching,Plan the ILM scripts course,open,P3,teacher,,
+6.1,clinical,EMR-as-SaMD evidence framework,open,P2,clinician,validation isolation+integration,`;
+
+/* ---- boot ---- */
+buildRoleGrid();
+$("#loadBtn").onclick=pickFile;
+$("#sampleBtn").onclick=()=>loadText(SAMPLE,"sample desk");
+$("#switchBtn").onclick=unseat;
+if("showDirectoryPicker" in window){const fb=$("#folderBtn");fb.style.display="";fb.onclick=openFolder;}
+if(localStorage.getItem(KEY_ROLE)) sit(localStorage.getItem(KEY_ROLE)); else setAccent(ROLES[0].c);
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
