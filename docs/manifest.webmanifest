@@ -1,16 +1,14 @@
 {
   "name": "mez — the desk",
   "short_name": "mez",
-  "description": "One desk, many seats. A local-first command surface you enter by role.",
-  "start_url": ".",
-  "scope": ".",
+  "description": "A desk you own. Local-first, no key, no cloud.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#14161b",
-  "theme_color": "#14161b",
+  "background_color": "#0a1020",
+  "theme_color": "#0a1020",
   "icons": [
-    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
-    {"src":"icons/icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

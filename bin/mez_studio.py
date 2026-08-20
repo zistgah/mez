@@ -275,6 +275,9 @@ class H(BaseHTTPRequestHandler):
     def _s(self, o, ct="application/json", code=200):
         b = o if isinstance(o, bytes) else (o if isinstance(o, str) else json.dumps(o)).encode()
         self.send_response(code); self.send_header("Content-Type", ct)
+        # The published page probes this server from a browser. The server still binds loopback
+        # only (M6); allowing the read is what makes the page honest instead of guessing.
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
     def log_message(self, *a): pass
     def do_GET(self):
