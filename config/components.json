@@ -1,0 +1,309 @@
+{
+  "_comment": [
+    "The drop-in registry. DATA, not code — the spine reads this and mounts whatever is here.",
+    "Adding a component means adding an entry; it does not mean editing mez_studio.py.",
+    "",
+    "Every entry declares: what it is, which rung it appears on, and HOW THE SPINE REACHES IT.",
+    "The spine calls; it never reimplements. That distinction is the whole point: the recurring",
+    "defect in this desk has been a capability that exists in the estate and cannot be reached",
+    "from here. A component absent from disk is reported as absent, never simulated.",
+    "",
+    "mount kinds:",
+    "  static   a page served from the component's own repo (its studio) — shown in a frame",
+    "  serve    a local server the component brings; the spine offers to start it, never assumes",
+    "  cli      a command the component owns; the spine shows the command and runs it on request",
+    "  panel    the spine's own surface over the component's data (estate, DOI ledger)",
+    "  dome     the immersive rung: a world config mounted into zistgah/dome"
+  ],
+  "version": 1,
+  "rungs": {
+    "console": {
+      "title": "Console",
+      "what": "the CLI. Everything is here first."
+    },
+    "ide": {
+      "title": "Studio",
+      "what": "an IDE-shaped surface: rail, workbench, state."
+    },
+    "dome": {
+      "title": "Dome",
+      "what": "the immersive rung, mounted from zistgah/dome."
+    }
+  },
+  "_note_rungs": [
+    "C33 / M4: the rung changes what is SHOWN, never what is computed. A console user and a dome",
+    "user get the same numbers. Your role selects a default rung; it does not gate a capability."
+  ],
+  "components": [
+    {
+      "id": "kitab",
+      "title": "Kitab",
+      "script": "کتاب",
+      "group": "compose",
+      "what": "the book template every cycler emits into — reader, theme, plumbing",
+      "repo": "zistgah/kitab",
+      "mount": "static",
+      "path": "index.html",
+      "rungs": [
+        "ide"
+      ],
+      "port": null
+    },
+    {
+      "id": "matba",
+      "title": "Matba",
+      "script": "مطبع",
+      "group": "cycler",
+      "what": "print — books, papers, posters, manuals, filings",
+      "repo": "zistgah/matba",
+      "mount": "serve",
+      "entry": "matba.py",
+      "path": "studio.html",
+      "rungs": [
+        "ide"
+      ],
+      "port": 8710
+    },
+    {
+      "id": "khwab",
+      "title": "Khwab",
+      "script": "خواب",
+      "group": "cycler",
+      "what": "visual — images, skits, features, series",
+      "repo": "zistgah/khwab",
+      "mount": "serve",
+      "entry": "khwab.py",
+      "path": "studio.html",
+      "rungs": [
+        "ide"
+      ],
+      "port": 8711
+    },
+    {
+      "id": "awaz",
+      "title": "Awaz",
+      "script": "آواز",
+      "group": "cycler",
+      "what": "audio — songs, podcasts, lectures, oral history",
+      "repo": "zistgah/awaz",
+      "mount": "serve",
+      "entry": "awaz.py",
+      "path": "studio.html",
+      "rungs": [
+        "ide"
+      ],
+      "port": 8712
+    },
+    {
+      "id": "tilasm",
+      "title": "Tilasm",
+      "script": "طلسم",
+      "group": "cycler",
+      "what": "immersive — AR, XR, VR: stations a person can be in",
+      "repo": "zistgah/tilasm",
+      "mount": "serve",
+      "entry": "zcycler.py",
+      "path": "studio.html",
+      "rungs": [
+        "ide",
+        "dome"
+      ],
+      "port": 8713
+    },
+    {
+      "id": "pench",
+      "title": "Pench",
+      "script": "پیچ",
+      "group": "cycler",
+      "what": "embodied — robotics, cyberphysical, sim2real, real2sim",
+      "repo": "zistgah/pench",
+      "mount": "serve",
+      "entry": "zcycler.py",
+      "path": "studio.html",
+      "rungs": [
+        "ide"
+      ],
+      "port": 8714
+    },
+    {
+      "id": "yadein",
+      "title": "Yadein",
+      "script": "یادیں",
+      "group": "cycler",
+      "what": "record — a multimodal diary, staggered, toward TransEg",
+      "repo": "zistgah/yadein",
+      "mount": "serve",
+      "entry": "zcycler.py",
+      "path": "studio.html",
+      "rungs": [
+        "ide"
+      ],
+      "port": 8715
+    },
+    {
+      "id": "aab",
+      "title": "AAB painter",
+      "script": "آب",
+      "group": "make",
+      "what": "paint a system as a typed graph over a closed six-kind vocabulary, oracle-gated",
+      "repo": "zistgah/aab",
+      "mount": "static",
+      "path": "index.html",
+      "rungs": [
+        "ide",
+        "dome"
+      ],
+      "port": null,
+      "note": "no oracle, no glow — a node lights only when its oracle passes",
+      "guidance": [
+        "Paint a system as a typed graph over a closed six-kind vocabulary.",
+        "",
+        "  no oracle, no glow — a node lights only when its oracle passes.",
+        "",
+        "Not sketching. A painted node is a claim with a test attached."
+      ]
+    },
+    {
+      "id": "dome",
+      "title": "The dome",
+      "script": "",
+      "group": "make",
+      "what": "the shared virtual dome: one library, one world config per zistgah, never a fork",
+      "repo": "zistgah/dome",
+      "mount": "dome",
+      "path": "demo/index.html",
+      "rungs": [
+        "dome"
+      ],
+      "port": null,
+      "world_config": "dome.config.example.json",
+      "guidance": [
+        "One library, one world config per zistgah. NEVER a fork.",
+        "",
+        "  Any code that branches on world identity is a redundancy defect.",
+        "  Vehicles swap physics profiles through one flight seam, not three controllers.",
+        "  The orrery reuses chakra-core's ephemeris — no second ephemeris engine."
+      ]
+    },
+    {
+      "id": "estate",
+      "title": "Estate",
+      "script": "",
+      "group": "operate",
+      "what": "the inventory: what exists, where, at what HEAD, in sync or not",
+      "repo": "zistgah/estate",
+      "mount": "panel",
+      "rungs": [
+        "console",
+        "ide"
+      ],
+      "port": null,
+      "pipeline": [
+        "init",
+        "preflight",
+        "clone-or-reuse",
+        "contract",
+        "diff",
+        "gate",
+        "receipt",
+        "stamp",
+        "reseal",
+        "push",
+        "mark",
+        "done"
+      ],
+      "note": "the twelve stages are zops's, called not reimplemented",
+      "guidance": [
+        "The twelve stages are zops's. The spine calls them; it does not reimplement them:",
+        "",
+        "  init -> preflight -> clone-or-reuse -> contract -> diff -> gate",
+        "  -> receipt -> stamp -> reseal -> push -> mark -> done",
+        "",
+        "  bash ops/zops.sh                  the library",
+        "  mez studio doctor                 present, absent, or unreachable",
+        "",
+        "Known live defect: _z_create_remote_if_needed is defined in canonical zops",
+        "and never called. Create the remote explicitly before any seal."
+      ]
+    },
+    {
+      "id": "misty",
+      "title": "Misty DOI",
+      "script": "",
+      "group": "operate",
+      "what": "mint, version, harvest, walk — the DOI layer",
+      "repo": "project-ilm/misty-doi",
+      "mount": "panel",
+      "rungs": [
+        "console",
+        "ide"
+      ],
+      "port": null,
+      "cli": "misty",
+      "verbs": [
+        "init",
+        "validate",
+        "transform",
+        "package",
+        "ots",
+        "publish",
+        "newversion",
+        "discard",
+        "walk",
+        "harvest",
+        "latest"
+      ],
+      "note": "the interface is read at run time, never recalled. ots takes a subcommand: ots stamp <path>",
+      "guidance": [
+        "misty's interface is READ, never recalled:",
+        "",
+        "  misty --help                      the verbs it actually has",
+        "  misty ots --help                  ots takes a SUBCOMMAND",
+        "  misty ots stamp <path>            one path, no globs",
+        "  misty latest -c <concept-doi>     the deposition to version from",
+        "  misty newversion -r <id> -m meta.json -f artifact --new-version X",
+        "",
+        "A new plate for an existing corpus is a VERSION, not a new deposit.",
+        "Splitting a lineage is not undoable without the registrar."
+      ]
+    },
+    {
+      "id": "genie",
+      "title": "Genie",
+      "script": "",
+      "group": "compose",
+      "what": "the prompt operating system — build an artifact from nothing",
+      "repo": "zistgah/genie",
+      "mount": "cli",
+      "cli": "mez genie",
+      "rungs": [
+        "console",
+        "ide"
+      ],
+      "port": null,
+      "guidance": [
+        "  mez genie cycle                   the eleven nodes",
+        "  mez genie modes                   ab-initio, ingest, correct",
+        "  mez genie discover --mode ab-initio --domain \"...\"",
+        "",
+        "Every prompt creates, verifies, executes, measures, falsifies or integrates",
+        "an artifact. None of them merely describes one."
+      ]
+    },
+    {
+      "id": "chakra",
+      "title": "Chakra",
+      "script": "",
+      "group": "operate",
+      "what": "time: ten reckonings, computed, none of it looked up",
+      "repo": "project-ilm/chakra",
+      "mount": "static",
+      "path": "index.html",
+      "rungs": [
+        "ide",
+        "dome"
+      ],
+      "port": null
+    }
+  ]
+}

@@ -331,8 +331,23 @@ def register(g):
         "genie":  cmd_genie,
         "matrix": lambda a: matrix(_estate(a)),
         "badges": lambda a: badges(_estate(a), brief="--brief" in a),
+        "studio": _studio,
     })
     return g["EXT_COMMANDS"]
+
+
+def _studio(args):
+    """Hand off to the spine. It lives beside this file and owns its own registry."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    spine = os.path.join(here, "mez_studio.py")
+    if not os.path.exists(spine):
+        print("the studio spine is not installed beside mez_ext.py (%s)" % spine)
+        print("  run mez_update.sh again — it installs bin/mez_studio.py")
+        return EXIT_ABSENT
+    env = dict(os.environ)
+    cfg = os.path.join(os.path.dirname(here), "config", "components.json")
+    if os.path.exists(cfg): env.setdefault("MEZ_COMPONENTS", cfg)
+    return subprocess.call([sys.executable, spine] + list(args), env=env)
 
 
 def _estate(args):

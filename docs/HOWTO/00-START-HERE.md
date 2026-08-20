@@ -23,6 +23,7 @@ apart is most of the work.
 
 | | |
 |---|---|
+| [`mez studio`](05-studio.md) | the spine: CLI, IDE and dome rungs, with everything else as a drop-in |
 | [`mez cycler`](01-cycler.md) | the six output cyclers — print, visual, audio, immersive, embodied, record |
 | [`mez genie`](02-genie.md) | the prompt operating system: build an artifact from nothing |
 | [`mez matrix`](03-matrix.md) | what is reachable, what exists unwired, what is a genuine gap |
