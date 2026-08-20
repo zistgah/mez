@@ -1469,5 +1469,17 @@ def main(argv=None) -> int:
     return fn(a, state)
 
 
+
+# ---- consolidation: cycler / genie / matrix / badges ------------------------
+# Added by mez_update.sh. Each is local-first and stdlib-only, and each declares honestly
+# when the thing it reaches is absent rather than pretending (contract M2).
+try:
+    import mez_ext as _ext
+    _ext.register(globals())
+except Exception as _e:                     # never break the desk because an extension failed
+    def _ext_absent(*a, **k):
+        print("mez extension not loaded: %s" % _e); return 3
+    _ext = None
+
 if __name__ == "__main__":
     raise SystemExit(main())
