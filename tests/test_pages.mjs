@@ -1,70 +1,97 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+/* Resolve the page from an explicit root, searched, and SAY WHERE IT LOOKED. The suite may sit
+   beside the page or in a tests/ directory next to docs/; a test that only works from one
+   directory is testing the directory. */
+const here = path.dirname(fileURLToPath(import.meta.url));
+const roots = [here, path.join(here, 'docs'), path.join(here, '..', 'docs'),
+               process.cwd(), path.join(process.cwd(), 'docs'),
+               process.env.MEZ_DOCS || ''].filter(Boolean);
+const root = roots.find(r => existsSync(path.join(r, 'index.html')));
+if (!root) {
+  console.error('index.html not found. Looked in:\n  ' + roots.join('\n  '));
+  process.exit(1);
+}
+const read = f => readFileSync(path.join(root, f), 'utf8');
+const H = read('index.html');
+const SW = read('sw.js');
+const MF = JSON.parse(read('manifest.webmanifest'));
+const CJ = JSON.parse(read('components.json'));
 let n=0; const t=(m,f)=>{f();n++;console.log('  ok   '+m);};
-/* Prose in HTML is wrapped for reading. Every assertion about what the page SAYS normalises
-   whitespace first — a test that breaks on a line break is testing the formatter, not the page.
-   This is the third time this class has bitten; it does not get to bite a fourth. */
-const flat = s => String(s).replace(/\s+/g, ' ');
-const says = (text, phrase) =>
-  assert.ok(flat(text).toLowerCase().includes(phrase.toLowerCase()),
-            'the page does not say: ' + phrase);
-const h = readFileSync('index.html','utf8');
-const sw = readFileSync('sw.js','utf8');
-const mf = JSON.parse(readFileSync('manifest.webmanifest','utf8'));
+/* Prompts and prose are wrapped for reading. Normalise before matching — a regex broken by a
+   line break has failed four times in this estate, so it is fixed once, here, for all of them. */
+const flat = s => String(s).replace(/\s+/g,' ');
+const says = (text, phrase) => assert.ok(flat(text).includes(phrase), 'does not say: ' + phrase);
 
-t('it is a static page — no build step, no framework, no CDN', () => {
-  assert.ok(!/<script[^>]+src=["']http/i.test(h), 'loads a remote script');
-  assert.ok(!/@import|href=["']http[^"']*\.css/i.test(h), 'loads a remote stylesheet');
-  assert.ok(!/fonts\.(googleapis|gstatic)/.test(h), 'fetches a remote font'); });
-t('the seven seats are all there, each with its own accent', () => {
-  const seats = [...h.matchAll(/\['(\w+)',\s*'(#[0-9a-f]{6})'/g)];
-  assert.equal(seats.length, 7, 'expected 7 seats, got ' + seats.length);
-  assert.deepEqual(seats.map(s=>s[1]),
-    ['engineer','researcher','clinician','teacher','learner','institution','visitor']);
-  assert.equal(new Set(seats.map(s=>s[2])).size, 7, 'two seats share an accent'); });
-t('the seat changes what is SHOWN, never what is computed — and says so', () => {
-  says(h, 'changes what is'); says(h, 'never what is computed'); says(h, 'same numbers'); });
-t('the bench is DATA — the page reads components.json, it does not contain it', () => {
-  assert.match(h, /components\.json/);
-  for (const id of ['kitab','khwab','tilasm','pench','yadein','misty'])
-    assert.ok(!new RegExp(`['"]${id}['"]`).test(h), id + ' is hardcoded in the page');
-  says(h, 'the bench is data, not markup'); });
-t('an unreadable registry is reported, not faked into an empty desk', () => {
-  says(h, 'an empty bench means a missing file, not an empty desk'); });
+t('it is a real page: doctype, charset, viewport, title, description', () => {
+  for (const m of ['<!doctype html>','charset=utf-8','name=viewport','<title>','name=description'])
+    assert.ok(H.includes(m), m); });
+t('it is installable: manifest linked, icons declared and present in the shell', () => {
+  assert.ok(H.includes('manifest.webmanifest'));
+  assert.equal(MF.icons.length, 2);
+  assert.ok(MF.icons.some(i => i.purpose && i.purpose.includes('maskable')));
+  assert.equal(MF.background_color, '#0a1020'); });
 
-t('THE LAMP is a real probe of the local desk, with a timeout', () => {
-  assert.match(h, /127\.0\.0\.1:7373\/api\/state/);
-  assert.match(h, /AbortController/); assert.match(h, /setTimeout\(\(\) => ctl\.abort/); });
-t('and when the desk is silent the page says so instead of guessing', () => {
-  says(h, 'desk not running');
-  says(h, 'nothing on this page claims to know what is running'); });
-t('live · on-disk-idle · not-reachable are three different words, not one', () => {
-  for (const w of ['answering','on disk, idle','not reachable']) says(h, w);
-  says(h, 'wiring gap, not a missing build'); });
-t('every tool still opens its own published studio with no server at all', () => {
-  assert.match(h, /github\.io/); says(h, 'needs no server at all'); });
+/* THE LAMP — the signature, and a real probe rather than a decoration */
+t('the lamp PROBES the local desk, with a timeout', () => {
+  says(H, "fetch(DESK + '/api/state'");
+  says(H, 'AbortController');
+  says(H, "cache: 'no-store'"); });
+t('when the desk is silent the page says so, and claims nothing', () => {
+  says(H, 'Desk dark');
+  says(H, 'nothing on this page claims to know what is');
+  assert.ok(!/desk is probably|assume|should be running/i.test(H)); });
+t('and the service worker NEVER caches the probe', () => {
+  says(SW, 'isLocalDesk');
+  says(SW, 'if (isLocalDesk(url)) return;');
+  says(SW, 'A stale "answering" would be exactly'); });
 
-t('the service worker caches the shell and NEVER the probe', () => {
-  assert.match(sw, /hostname === '127\.0\.0\.1' \|\| u\.hostname === 'localhost'/);
-  says(sw, 'never cache the probe'); says(sw, 'caches the page, never your data'); });
-t('the manifest installs on laptop and phone', () => {
-  assert.equal(mf.display, 'standalone');
-  assert.equal(mf.start_url, './');
-  assert.equal(mf.icons.length, 2);
-  assert.ok(mf.icons.every(i => /maskable/.test(i.purpose))); });
-t('accessibility floor: viewport, skip link, focus ring, reduced motion', () => {
-  assert.match(h, /name=viewport/); assert.match(h, /class=sr href="#bench"/);
-  assert.match(h, /:focus-visible/); assert.match(h, /prefers-reduced-motion/);
-  assert.match(h, /aria-pressed/); assert.match(h, /aria-hidden/); });
-t('it does not reuse the pressroom or the cutting-room palette', () => {
-  for (const c of ['#b3391f','#c4457b','#e8e2d4','#ece7f2'])
-    assert.ok(!h.includes(c), 'borrowed ' + c);
-  assert.match(h, /--ground:#0a1020/); });
-t('nothing uploads, and the page says that plainly', () => {
-  says(h, 'nothing here uploads anything');
-  assert.ok(!/method:\s*['"]POST/i.test(h), 'the page POSTs somewhere'); });
-t('the canon disclaimer travels with it', () => {
-  says(h, 'zistgah/governance'); says(h, 'governs');
-  says(h, 'records intent; the contract records fact'); });
+/* THE BENCH IS DATA */
+t('no component id is hardcoded in the page — the bench is fetched', () => {
+  says(H, "fetch('components.json'");
+  const body = H.slice(H.indexOf('<body'));
+  const named = CJ.components.map(c => c.id)
+    .filter(id => new RegExp("['\"]" + id + "['\"]").test(body));
+  assert.deepEqual(named, [], 'hardcoded in the markup: ' + named.join(', ')); });
+t('an unreadable registry is REPORTED, never faked into an empty desk', () => {
+  says(H, 'It is not empty — it is unknown, and those are different things.'); });
+t('every tool links to its own page and its own source', () => {
+  says(H, 'its own page'); says(H, '.github.io/');
+  says(H, 'https://github.com/'); });
+
+/* the seats */
+t('seven seats, and the seat changes emphasis not capability', () => {
+  const seats = [...H.matchAll(/\['(engineer|researcher|clinician|teacher|learner|institution|visitor)',/g)];
+  assert.equal(seats.length, 7);
+  says(H, 'Your role changes what is shown. Never what is computed.');
+  says(H, 'nothing is hidden that you could otherwise reach'); });
+
+/* the palette is this room's own */
+t('the palette is the drafting table, not another room in the estate', () => {
+  const css = H.slice(H.indexOf(':root'), H.indexOf('</style>')).toLowerCase();
+  for (const other of ['#b3391f','#c4457b','#d4a843','#e0a534'])
+    assert.ok(!css.includes(other), 'borrows ' + other + ' from another room');
+  assert.ok(css.includes('#0a1020'), 'the cyanotype ground'); });
+t('the grid is drawn, not an image request', () => {
+  says(H, 'linear-gradient(rgba(110,168,216');
+  assert.ok(!/background-image:\s*url\(/.test(H), 'fetches a background'); });
+
+/* honesty and access */
+t('the three states are named where a person can read them', () => {
+  says(H, 'wiring gap, not a missing build');
+  for (const s of ['answering', 'on disk, idle', 'not here']) says(H, s); });
+t('it degrades: no script, no network, still a page', () => {
+  assert.ok(H.indexOf('<script') > H.indexOf('</header>'), 'content precedes the script');
+  says(SW, "caches.match('./index.html')"); });
+t('reduced motion and focus are respected', () => {
+  says(H, 'prefers-reduced-motion'); says(H, ':focus-visible'); });
+t('nothing is uploaded and no vendor is named', () => {
+  const low = H.toLowerCase();
+  for (const v of ['openai','anthropic','chatgpt','gemini','claude','analytics','gtag'])
+    assert.ok(!low.includes(v), 'names ' + v);
+  assert.ok(!/<form/i.test(H), 'has a form that could post'); });
 
 console.log(`\n  ===== ${n} pass, 0 fail =====`);

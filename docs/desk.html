@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang=en><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mez — Cognitive Workbench</title>
+<meta name=description content="A work desk. Cases come off the tray and open onto the surface; their stages are tools you pick up. No API key — prompts are assembled here and handed to whichever AI you use.">
+<meta name=theme-color content="#1a1109">
+<link rel=manifest href="manifest.webmanifest">
+<style>
+:root{
+  /* wood, leather, brass, parchment. Depth and material boundaries carry meaning;
+     ornament must never obscure interaction. */
+  --wood:#1a1109; --wood-2:#2a1c10; --grain:rgba(0,0,0,.36);
+  --leather:#3b2a1a; --brass:#c9973f; --brass-lit:#f0c063; --brass-dark:#7d5b23;
+  --parch:#e8dcc0; --parch-2:#d9c9a4; --ink:#2a2118;
+  --plate:#141821; --plate-ink:#e6dfd0;
+  --dim:rgba(232,220,192,.55); --seal:#8f2f22; --verified:#4e8f5c;
+  --disp:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --hand:"Segoe Script","Bradley Hand","Snell Roundhand",cursive;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --lift:0 1px 0 rgba(255,236,200,.09), 0 10px 22px -8px rgba(0,0,0,.75), 0 2px 5px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{color:var(--parch);font:15px/1.55 var(--disp);overflow:hidden;
+  background:
+    radial-gradient(140% 90% at 50% -20%, #3a2716 0%, var(--wood) 58%, #0d0805 100%),
+    repeating-linear-gradient(92deg, transparent 0 3px, var(--grain) 3px 4px, transparent 4px 11px),
+    repeating-linear-gradient(88deg, transparent 0 17px, rgba(0,0,0,.14) 17px 19px);
+  background-blend-mode:normal, overlay, overlay}
+:focus-visible{outline:2px solid var(--brass-lit);outline-offset:2px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.mono{font-family:var(--mono)}
+
+/* ── brass-edged plaque, the one shared material ─────────────────────── */
+.plaque{background:linear-gradient(160deg,#20262f,#0f131a);border:1px solid var(--brass-dark);
+  box-shadow:var(--lift), inset 0 1px 0 rgba(240,192,99,.16);color:var(--plate-ink)}
+.parchment{background:linear-gradient(150deg,var(--parch),var(--parch-2));color:var(--ink);
+  box-shadow:var(--lift);border:1px solid rgba(120,90,50,.35)}
+
+/* ── the room ────────────────────────────────────────────────────────── */
+#room{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+#rail{display:flex;align-items:center;gap:.8rem;padding:.5rem .9rem;
+  border-bottom:1px solid rgba(201,151,63,.22);
+  background:linear-gradient(#241708,#170e05);box-shadow:0 6px 18px -10px #000}
+#rail .wordmark{font-size:1.4rem;letter-spacing:.14em;color:var(--brass-lit);
+  text-shadow:0 1px 0 #000,0 0 14px rgba(240,192,99,.25)}
+#rail .sub{font-size:.66rem;letter-spacing:.28em;text-transform:uppercase;color:var(--dim)}
+#rail .sp{flex:1}
+.chip{font:600 .6rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid rgba(201,151,63,.35);padding:.38rem .55rem;color:var(--brass);border-radius:2px}
+.chip.local{color:var(--verified);border-color:rgba(78,143,92,.5)}
+.chip.out{color:var(--seal);border-color:rgba(143,47,34,.55)}
+#dens{display:flex;border:1px solid rgba(201,151,63,.35)}
+#dens button{font:600 .6rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  padding:.42rem .7rem;color:var(--dim)}
+#dens button[aria-pressed=true]{background:linear-gradient(#c9973f,#8a6321);color:#1a1109}
+
+#floor{display:grid;grid-template-columns:13.5rem 1fr 0;min-height:0;transition:grid-template-columns .22s}
+#floor.pro{grid-template-columns:13.5rem 1fr 20rem}
+@media(max-width:64rem){#floor,#floor.pro{grid-template-columns:1fr}#tray,#inspector{display:none}}
+
+/* ── the tool tray: cases, not a nav ─────────────────────────────────── */
+#tray{overflow:auto;padding:.7rem .55rem;border-right:1px solid rgba(201,151,63,.18);
+  background:linear-gradient(180deg,rgba(59,42,26,.55),rgba(23,14,5,.55))}
+.traylabel{font:600 .58rem/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;
+  color:var(--brass);padding:.5rem .4rem .45rem}
+.case{width:100%;display:flex;align-items:center;gap:.55rem;text-align:left;padding:.5rem .55rem;
+  margin-bottom:.3rem;border:1px solid rgba(201,151,63,.2);border-radius:3px;
+  background:linear-gradient(150deg,#3a2818,#241608);box-shadow:var(--lift);transition:.16s}
+.case:hover{border-color:var(--brass);transform:translateY(-1px)}
+.case[aria-pressed=true]{border-color:var(--brass-lit);
+  box-shadow:var(--lift),inset 0 0 0 1px rgba(240,192,99,.35),0 0 20px -4px rgba(240,192,99,.4)}
+.case .cl{width:1.5rem;height:1.5rem;flex:0 0 auto;border-radius:2px;
+  background:linear-gradient(150deg,var(--brass),var(--brass-dark));
+  display:grid;place-items:center;color:#1a1109;font:700 .62rem/1 var(--mono)}
+.case b{display:block;font-weight:400;font-size:.95rem;letter-spacing:.02em}
+.case span{display:block;font:.6rem/1.25 var(--mono);color:var(--dim)}
+
+/* ── the desk ────────────────────────────────────────────────────────── */
+#desk{position:relative;overflow:auto;padding:1.1rem 1.2rem 1.4rem}
+#desk::before{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 22px 44px -26px #000, inset 0 -22px 44px -26px #000}
+.empty{max-width:34rem;margin:5rem auto;text-align:center;color:var(--dim)}
+.empty h2{font-size:1.9rem;font-weight:400;color:var(--parch);margin:0 0 .5rem}
+
+/* the toolbox, opened onto the desk */
+.toolbox{border-radius:5px;padding:.8rem;margin-bottom:1rem;
+  background:linear-gradient(158deg,#4a3320,#2a1a0c);border:1px solid var(--brass-dark);
+  box-shadow:var(--lift),inset 0 1px 0 rgba(240,192,99,.14)}
+.tb-lid{display:flex;align-items:center;gap:.6rem;padding:0 .2rem .6rem;
+  border-bottom:1px solid rgba(201,151,63,.28);margin-bottom:.7rem}
+.tb-lid b{font-size:1.3rem;font-weight:400;color:var(--brass-lit);letter-spacing:.04em}
+.tb-lid i{font-style:normal;font:.62rem/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim)}
+.tb-lid .sp{flex:1}
+.tb-lid button{font:600 .58rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid rgba(201,151,63,.3);padding:.35rem .55rem;color:var(--brass);border-radius:2px}
+
+/* MID: stages as tools laid in the box */
+.tools{display:grid;gap:.4rem;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr))}
+.tool{position:relative;text-align:left;padding:.5rem .55rem;border-radius:3px;
+  border:1px solid rgba(201,151,63,.2);background:linear-gradient(#20262f,#12161d);
+  box-shadow:var(--lift);color:var(--plate-ink)}
+.tool:hover{border-color:var(--brass)}
+.tool[aria-pressed=true]{border-color:var(--brass-lit);
+  box-shadow:var(--lift),0 0 18px -5px rgba(240,192,99,.5)}
+.tool .n{font:700 .58rem/1 var(--mono);color:var(--brass);letter-spacing:.1em}
+.tool .t{display:block;margin-top:.2rem;font-size:.9rem}
+.tool .st{position:absolute;top:.45rem;right:.5rem;width:.5rem;height:.5rem;border-radius:50%;
+  background:rgba(232,220,192,.16)}
+.tool.done .st{background:var(--verified);box-shadow:0 0 8px rgba(78,143,92,.7)}
+.tool.now .st{background:var(--brass-lit);box-shadow:0 0 10px rgba(240,192,99,.8)}
+.tool.gate::after{content:"gate";position:absolute;bottom:.35rem;right:.5rem;
+  font:700 .5rem/1 var(--mono);letter-spacing:.1em;color:var(--seal)}
+
+/* EASY: the spinner */
+.spinner{display:grid;place-items:center;padding:1rem 0 .4rem}
+.wheel{position:relative;width:min(19rem,74vw);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 42%,#3a2718 0 34%,#1d1207 34%);
+  border:3px solid var(--brass-dark);box-shadow:var(--lift),inset 0 0 40px rgba(0,0,0,.7)}
+.wheel .seg{position:absolute;left:50%;top:50%;transform-origin:0 0;
+  font:600 .58rem/1 var(--mono);letter-spacing:.06em;color:var(--dim);white-space:nowrap}
+.wheel .seg.on{color:var(--brass-lit);text-shadow:0 0 10px rgba(240,192,99,.6)}
+.wheel .hub{position:absolute;inset:34%;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 40% 35%,var(--brass-lit),var(--brass-dark) 70%);
+  color:#1a1109;box-shadow:0 6px 16px rgba(0,0,0,.7),inset 0 -3px 8px rgba(0,0,0,.35);
+  border:0;font:700 1.5rem/1 var(--mono)}
+.wheel .hub:hover{filter:brightness(1.1)}
+.wheel .cap{position:absolute;left:0;right:0;bottom:-2.4rem;text-align:center;
+  font:.7rem/1.4 var(--mono);color:var(--dim)}
+
+/* the stage, opened as paper on the desk */
+.sheet{padding:1rem 1.1rem;border-radius:2px;margin-top:.9rem;position:relative}
+.sheet h3{font-size:1.35rem;font-weight:400;margin:0 0 .15rem}
+.sheet .obj{font-size:.92rem;color:#4a3a26;margin:0 0 .8rem}
+.sheet label{display:block;font:600 .58rem/1 var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:#6b563a;margin:.75rem 0 .25rem}
+.sheet textarea,.sheet input{width:100%;font:13px/1.6 var(--mono);color:var(--ink);
+  background:rgba(255,255,255,.42);border:1px solid rgba(120,90,50,.3);padding:.5rem .6rem;
+  border-radius:2px;resize:vertical}
+.sheet .row{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.8rem;align-items:center}
+.btn{font:600 .6rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  padding:.55rem .85rem;border-radius:2px;
+  background:linear-gradient(#d5a44b,#96702a);color:#1a1109;box-shadow:var(--lift)}
+.btn:hover{filter:brightness(1.08)}
+.btn.q{background:none;border:1px solid rgba(120,90,50,.4);color:#5c4728;box-shadow:none}
+.hint{font:.7rem/1.5 var(--mono);color:#6b563a;margin:.5rem 0 0}
+.hint.bad{color:var(--seal)}.hint.good{color:#2f6b3c}
+pre.prompt{white-space:pre-wrap;font:11.5px/1.55 var(--mono);color:#3a2e1e;
+  background:rgba(255,255,255,.4);border:1px solid rgba(120,90,50,.28);
+  padding:.6rem;max-height:16rem;overflow:auto;margin:.35rem 0 0;border-radius:2px}
+
+/* the boundary notice, before anything leaves */
+.boundary{border-left:3px solid var(--seal);padding:.5rem .7rem;margin:.7rem 0 0;
+  background:rgba(143,47,34,.09);font:.72rem/1.5 var(--mono);color:#6a2b20}
+
+/* providers, as engraved keys */
+.keys{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.35rem}
+.keys a{font:600 .58rem/1 var(--mono);letter-spacing:.08em;padding:.45rem .65rem;
+  border:1px solid rgba(120,90,50,.4);color:#5c4728;text-decoration:none;border-radius:2px;
+  background:linear-gradient(#efe4ca,#ddcda8)}
+.keys a:hover{border-color:var(--brass-dark)}
+
+/* stamps, as implements you pick up */
+#stamps{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.9rem;align-items:center}
+.stamp{width:3.4rem;height:3.4rem;border-radius:50%;display:grid;place-items:center;text-align:center;
+  font:700 .49rem/1.15 var(--mono);letter-spacing:.04em;cursor:grab;
+  border:2px solid currentColor;box-shadow:var(--lift);transform:rotate(-7deg);
+  background:rgba(255,255,255,.06)}
+.stamp.retrieved{color:#5e7fa8}.stamp.derived{color:#7a6aa8}
+.stamp.verified{color:var(--verified)}.stamp.experimental{color:#b0822f}
+.stamp.doi{color:var(--seal)}.stamp.falsified{color:#8a3b30}
+.applied{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.applied .stamp{width:2.6rem;height:2.6rem;font-size:.42rem;cursor:default;transform:rotate(4deg)}
+
+/* ── the inspector, Pro only ─────────────────────────────────────────── */
+#inspector{overflow:auto;border-left:1px solid rgba(201,151,63,.18);
+  background:linear-gradient(180deg,rgba(20,24,33,.9),rgba(12,14,20,.95))}
+#inspector .grp{font:600 .56rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brass);padding:.85rem .8rem .3rem;border-bottom:1px solid rgba(201,151,63,.12)}
+#inspector .kv{display:flex;gap:.5rem;padding:.34rem .8rem;font:.68rem/1.45 var(--mono);
+  border-bottom:1px solid rgba(232,220,192,.05)}
+#inspector .kv span{color:var(--dim);flex:0 0 7.6rem}
+#inspector .kv b{font-weight:400;color:var(--plate-ink);word-break:break-word}
+#inspector ul{margin:.3rem 0;padding:0 .8rem 0 1.7rem;font:.68rem/1.6 var(--mono);color:var(--dim)}
+
+/* ── stage strip along the desk edge ─────────────────────────────────── */
+#strip{display:flex;align-items:center;gap:.6rem;padding:.45rem .9rem;
+  border-top:1px solid rgba(201,151,63,.22);
+  background:linear-gradient(#170e05,#241708);font:.66rem/1 var(--mono);color:var(--dim)}
+#strip .pips{display:flex;gap:.22rem;flex:1;min-width:0;overflow:hidden}
+#strip .pip{width:.55rem;height:.55rem;border-radius:50%;flex:0 0 auto;
+  background:rgba(232,220,192,.14)}
+#strip .pip.done{background:var(--verified)}
+#strip .pip.now{background:var(--brass-lit);box-shadow:0 0 8px rgba(240,192,99,.8)}
+#strip b{font-weight:400;color:var(--brass-lit)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head><body>
+
+<div id=room>
+  <div id=rail>
+    <span class=wordmark>MEZ</span>
+    <span class=sub>Cognitive Workbench</span>
+    <span class=sp></span>
+    <span class="chip local" id=boundary>local only</span>
+    <span class=chip id=saved>saved</span>
+    <div id=dens role=group aria-label="Presentation density"></div>
+  </div>
+
+  <div id=floor>
+    <nav id=tray aria-label="Tool tray"></nav>
+    <main id=desk>
+      <div class=empty>
+        <h2>The desk is empty.</h2>
+        <p>Take a case from the tray and open it here. Its stages come out onto the desk;
+           the desk keeps them where you left them.</p>
+      </div>
+    </main>
+    <aside id=inspector aria-label="Properties"></aside>
+  </div>
+
+  <div id=strip>
+    <span id=stripwhat>nothing open</span>
+    <span class=pips id=pips></span>
+    <span id=stripnext></span>
+  </div>
+</div>
+
+<script type=module>
+import { WORK } from './js/work.js';          /* the Work Interaction API — the only state owner */
+import { PROVIDERS } from './js/providers.js'; /* handoff adapters; no vendor is preferred */
+import { STAMPS } from './js/stamps.js';       /* desk implements over artifact metadata */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let W = null;                 /* the work packet. The UI never invents state — it asks WORK. */
+let flows = {};
+
+async function boot() {
+  try {
+    flows = await (await fetch('workflows.json', { cache: 'no-store' })).json();
+  } catch (e) {
+    $('#desk').innerHTML = '<div class=empty><h2>The cyclers could not be read.</h2><p>' +
+      esc(e.message) + '. That is unknown, not empty — nothing is shown rather than guessed.</p></div>';
+    return;
+  }
+  W = WORK.restore(flows);
+  density(); tray(); render();
+}
+
+/* ── density: three projections of ONE semantic model, overridable per stage ── */
+function density() {
+  const d = $('#dens'); d.innerHTML = '';
+  for (const k of ['easy', 'mid', 'pro']) {
+    const b = document.createElement('button');
+    b.textContent = k; b.type = 'button';
+    b.setAttribute('aria-pressed', String(W.density === k));
+    b.onclick = () => { W.setDensity(k); render(); };
+    d.append(b);
+  }
+  $('#floor').classList.toggle('pro', W.density === 'pro');
+}
+
+function tray() {
+  const t = $('#tray'); t.innerHTML = '<div class=traylabel>Cases</div>';
+  for (const f of Object.values(flows)) {
+    const b = document.createElement('button');
+    b.className = 'case'; b.type = 'button';
+    b.setAttribute('aria-pressed', String(W.open === f.id));
+    b.innerHTML = '<span class=cl>' + esc(f.title.slice(0, 2)) + '</span>' +
+      '<span><b>' + esc(f.title) + '</b><span>' + esc(f.domain) + '</span></span>';
+    b.onclick = () => { W.openCase(f.id); render(); };
+    t.append(b);
+  }
+  t.insertAdjacentHTML('beforeend',
+    '<div class=traylabel style="margin-top:.6rem">Implements</div><div id=stamps></div>');
+  const s = t.querySelector('#stamps');
+  for (const st of STAMPS) {
+    const e = document.createElement('button');
+    e.className = 'stamp ' + st.id; e.type = 'button'; e.title = st.means;
+    e.textContent = st.label;
+    e.onclick = () => { const r = W.stamp(st.id); render(); note(r.note, r.ok ? 'good' : 'bad'); };
+    s.append(e);
+  }
+}
+
+function render() {
+  density();
+  const f = flows[W.open];
+  const desk = $('#desk');
+  if (!f) { $('#stripwhat').textContent = 'nothing open'; $('#pips').innerHTML = '';
+            $('#stripnext').textContent = ''; $('#inspector').innerHTML = ''; return; }
+
+  const stages = f.stages;
+  const cur = W.stageIndex();
+  const box = document.createElement('div');
+  box.className = 'toolbox';
+  box.innerHTML = '<div class=tb-lid><b>' + esc(f.title) + '</b>' +
+    '<i>' + esc(f.domain) + '</i><span class=sp></span>' +
+    '<button type=button id=close>return to tray</button></div>';
+
+  if (W.densityFor(cur) === 'easy') box.append(spinner(f, stages, cur));
+  else box.append(tools(stages, cur));
+
+  desk.innerHTML = '';
+  desk.append(box);
+  desk.append(sheet(f, stages[cur]));
+  box.querySelector('#close').onclick = () => { W.openCase(null); render(); };
+
+  $('#stripwhat').innerHTML = '<b>' + esc(f.title) + '</b> · ' + esc(stages[cur].title);
+  $('#pips').innerHTML = stages.map((s, i) =>
+    '<i class="pip ' + (W.isDone(i) ? 'done' : i === cur ? 'now' : '') + '"></i>').join('');
+  const nx = W.predict();
+  $('#stripnext').innerHTML = nx
+    ? 'next: <b>' + esc(nx.title) + '</b>' + (nx.gate ? ' — your call' : '')
+    : 'cycle complete';
+  inspector(f, stages[cur]);
+}
+
+function tools(stages, cur) {
+  const g = document.createElement('div'); g.className = 'tools';
+  stages.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tool' + (W.isDone(i) ? ' done' : '') + (i === cur ? ' now' : '') +
+                  (W.isGate(s) ? ' gate' : '');
+    b.setAttribute('aria-pressed', String(i === cur));
+    b.innerHTML = '<span class=st></span><span class=n>' + String(i + 1).padStart(2, '0') +
+      '</span><span class=t>' + esc(s.title) + '</span>';
+    b.onclick = () => { W.goto(i); render(); };
+    g.append(b);
+  });
+  return g;
+}
+
+function spinner(f, stages, cur) {
+  const wrap = document.createElement('div'); wrap.className = 'spinner';
+  const w = document.createElement('div'); w.className = 'wheel';
+  stages.forEach((s, i) => {
+    const a = (i / stages.length) * 2 * Math.PI - Math.PI / 2;
+    const e = document.createElement('span');
+    e.className = 'seg' + (i === cur ? ' on' : '');
+    e.textContent = s.title;
+    e.style.transform = 'translate(' + (Math.cos(a) * 41) + '%,' + (Math.sin(a) * 41) + '%) ' +
+      'translate(-50%,-50%)';
+    w.append(e);
+  });
+  const hub = document.createElement('button');
+  hub.className = 'hub'; hub.type = 'button'; hub.title = 'advance';
+  hub.textContent = '→';
+  hub.onclick = () => { const r = W.advance(); render(); if (r.note) note(r.note, r.ok ? 'good' : 'bad'); };
+  w.append(hub);
+  const cap = document.createElement('span'); cap.className = 'cap';
+  cap.textContent = (cur + 1) + ' of ' + stages.length + ' · ' + stages[cur].title +
+    ' · the hub advances one stage';
+  w.append(cap);
+  wrap.append(w);
+  return wrap;
+}
+
+/* ── the stage, as paper on the desk ─────────────────────────────────── */
+function sheet(f, s) {
+  const el = document.createElement('article');
+  el.className = 'sheet parchment';
+  const st = W.stageState();
+  el.innerHTML =
+    '<h3>' + esc(s.title) + '</h3>' +
+    '<p class=obj>' + esc(s.objective) + '</p>' +
+    '<label for=intent>Your intention for this stage</label>' +
+    '<textarea id=intent rows=2>' + esc(st.intent || '') + '</textarea>' +
+    '<div class=row>' +
+      '<button class=btn id=build type=button>Build the prompt</button>' +
+      '<button class="btn q" id=showp type=button>Show it</button>' +
+      (W.densityFor() === 'pro' ? '<button class="btn q" id=easyone type=button>collapse this stage</button>'
+                                : '<button class="btn q" id=proone type=button>expand this stage</button>') +
+    '</div>' +
+    '<pre class=prompt id=prompt hidden></pre>' +
+    '<div id=handoff></div>' +
+    '<label for=cap>Paste what came back</label>' +
+    '<textarea id=cap rows=4 placeholder="text, or use Add a file for an image, audio or video">' +
+      esc(st.result || '') + '</textarea>' +
+    '<div class=row>' +
+      '<button class=btn id=accept type=button>Accept &amp; advance</button>' +
+      '<button class="btn q" id=file type=button>Add a file</button>' +
+      '<input type=file id=fin hidden multiple>' +
+      '<button class="btn q" id=repair type=button>Send to repair</button>' +
+      '<button class="btn q" id=clarify type=button>Needs clarification</button>' +
+    '</div>' +
+    '<div class=applied id=applied></div>' +
+    '<p class=hint id=note></p>';
+
+  el.querySelector('#intent').oninput = e => W.setIntent(e.target.value);
+  el.querySelector('#build').onclick = () => {
+    const p = W.prompt();
+    const box = el.querySelector('#prompt');
+    box.textContent = p; box.hidden = false;
+    handoff(el, p);
+    note('Built here, on this machine. Nothing has left it.', 'good');
+  };
+  el.querySelector('#showp').onclick = () => {
+    const b = el.querySelector('#prompt');
+    if (b.hidden) { b.textContent = W.prompt(); handoff(el, b.textContent); }
+    b.hidden = !b.hidden;
+  };
+  const flip = el.querySelector('#proone') || el.querySelector('#easyone');
+  if (flip) flip.onclick = () => { W.flipStageDensity(); render(); };
+  el.querySelector('#cap').oninput = e => W.setResult(e.target.value);
+  el.querySelector('#accept').onclick = () => {
+    const r = W.accept(); render(); note(r.note, r.ok ? 'good' : 'bad');
+  };
+  el.querySelector('#file').onclick = () => el.querySelector('#fin').click();
+  el.querySelector('#fin').onchange = e => {
+    const r = W.addFiles([...e.target.files]);
+    render(); note(r.note, 'good');
+  };
+  el.querySelector('#repair').onclick = () => { W.routeTo('repair'); render(); note('Routed to repair.', 'good'); };
+  el.querySelector('#clarify').onclick = () => { W.routeTo('clarify'); render(); note('Routed to clarification — nothing was guessed.', 'good'); };
+
+  const ap = el.querySelector('#applied');
+  for (const id of W.stampsOn()) {
+    const s2 = STAMPS.find(x => x.id === id); if (!s2) continue;
+    const e = document.createElement('span');
+    e.className = 'stamp ' + s2.id; e.textContent = s2.label; e.title = s2.means;
+    ap.append(e);
+  }
+  return el;
+}
+
+function handoff(el, prompt) {
+  const h = el.querySelector('#handoff');
+  h.innerHTML =
+    '<div class=boundary><b>This is where the desk ends.</b> Nothing has been sent. ' +
+    'Copy the prompt, or open a provider — the prompt goes with you, your work stays here.</div>' +
+    '<label>Hand it to whichever AI you use</label><div class=keys id=keys></div>' +
+    '<p class=hint>No account or key is needed for any of these. A local server or your own ' +
+    'typing works exactly as well.</p>';
+  const k = h.querySelector('#keys');
+  const copy = document.createElement('a');
+  copy.href = '#'; copy.textContent = 'Copy prompt';
+  copy.onclick = ev => { ev.preventDefault();
+    navigator.clipboard.writeText(prompt)
+      .then(() => note('Copied. Paste it wherever you like.', 'good'))
+      .catch(() => note('This browser blocked the clipboard — select the prompt above.', 'bad')); };
+  k.append(copy);
+  for (const p of PROVIDERS) {
+    const a = document.createElement('a');
+    a.href = p.url(prompt); a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = p.name;
+    a.onclick = () => { navigator.clipboard.writeText(prompt).catch(() => {}); W.markExternal(p.name); };
+    k.append(a);
+  }
+  $('#boundary').className = 'chip out';
+  $('#boundary').textContent = 'external step offered';
+}
+
+function note(t, k) { const n = $('#note'); if (n) { n.textContent = t || ''; n.className = 'hint ' + (k || ''); } }
+
+/* ── Pro inspector: the stage as a first-class object ────────────────── */
+function inspector(f, s) {
+  const box = $('#inspector');
+  if (W.density !== 'pro') { box.innerHTML = ''; return; }
+  const st = W.stageState();
+  const kv = (k, v) => '<div class=kv><span>' + esc(k) + '</span><b>' + esc(v) + '</b></div>';
+  box.innerHTML =
+    '<div class=grp>Stage</div>' +
+    kv('id', s.id) + kv('objective', s.objective.slice(0, 120)) +
+    kv('position', (W.stageIndex() + 1) + ' of ' + f.stages.length) +
+    kv('gate', W.isGate(s) ? 'human authority required' : 'none') +
+    kv('validation', W.stageState().result ? 'result captured' : 'no result yet') +
+    '<div class=grp>Workflow</div>' +
+    kv('cycler', f.title) + kv('input', f.input || '—') + kv('output', f.output || '—') +
+    '<div class=grp>Domain invariants</div><ul>' +
+      f.invariants.map(i => '<li>' + esc(i) + '</li>').join('') + '</ul>' +
+    '<div class=grp>Prompt assembly</div>' +
+    '<ul>' + W.assemblyOrder().map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+    '<div class=grp>Provenance</div>' +
+    kv('artifacts', String(W.artifacts.length)) +
+    kv('stamps', W.stampsOn().join(', ') || 'none') +
+    kv('external steps', String(st.external || 0)) +
+    kv('recorded', 'in the work packet, never in the prompt');
+}
+
+boot();
+if ('serviceWorker' in navigator)
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body></html>
