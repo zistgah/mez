@@ -32,7 +32,9 @@
   },
   "_note_rungs": [
     "C33 / M4: the rung changes what is SHOWN, never what is computed. A console user and a dome",
-    "user get the same numbers. Your role selects a default rung; it does not gate a capability."
+    "user get the same numbers. Your role selects a default rung; it does not gate a capability.",
+    "A rung is a projection of the LABORATORY, not of the systems on the bench. Each system keeps",
+    "its own surfaces; the rung changes only how this bench presents its own composition of them."
   ],
   "components": [
     {
@@ -42,12 +44,20 @@
       "group": "compose",
       "what": "the book template every cycler emits into — reader, theme, plumbing",
       "repo": "zistgah/kitab",
-      "mount": "static",
       "path": "index.html",
       "rungs": [
         "ide"
       ],
-      "port": null
+      "port": null,
+      "sovereign": true,
+      "reached_by": "static",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "matba",
@@ -56,13 +66,21 @@
       "group": "cycler",
       "what": "print — books, papers, posters, manuals, filings",
       "repo": "zistgah/matba",
-      "mount": "serve",
       "entry": "matba.py",
       "path": "studio.html",
       "rungs": [
         "ide"
       ],
-      "port": 8710
+      "port": 8710,
+      "sovereign": true,
+      "reached_by": "serve",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "khwab",
@@ -71,13 +89,21 @@
       "group": "cycler",
       "what": "visual — images, skits, features, series",
       "repo": "zistgah/khwab",
-      "mount": "serve",
       "entry": "khwab.py",
       "path": "studio.html",
       "rungs": [
         "ide"
       ],
-      "port": 8711
+      "port": 8711,
+      "sovereign": true,
+      "reached_by": "serve",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "awaz",
@@ -86,13 +112,21 @@
       "group": "cycler",
       "what": "audio — songs, podcasts, lectures, oral history",
       "repo": "zistgah/awaz",
-      "mount": "serve",
       "entry": "awaz.py",
       "path": "studio.html",
       "rungs": [
         "ide"
       ],
-      "port": 8712
+      "port": 8712,
+      "sovereign": true,
+      "reached_by": "serve",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "tilasm",
@@ -101,14 +135,22 @@
       "group": "cycler",
       "what": "immersive — AR, XR, VR: stations a person can be in",
       "repo": "zistgah/tilasm",
-      "mount": "serve",
       "entry": "zcycler.py",
       "path": "studio.html",
       "rungs": [
         "ide",
         "dome"
       ],
-      "port": 8713
+      "port": 8713,
+      "sovereign": true,
+      "reached_by": "serve",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "pench",
@@ -117,13 +159,21 @@
       "group": "cycler",
       "what": "embodied — robotics, cyberphysical, sim2real, real2sim",
       "repo": "zistgah/pench",
-      "mount": "serve",
       "entry": "zcycler.py",
       "path": "studio.html",
       "rungs": [
         "ide"
       ],
-      "port": 8714
+      "port": 8714,
+      "sovereign": true,
+      "reached_by": "serve",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "yadein",
@@ -132,13 +182,21 @@
       "group": "cycler",
       "what": "record — a multimodal diary, staggered, toward TransEg",
       "repo": "zistgah/yadein",
-      "mount": "serve",
       "entry": "zcycler.py",
       "path": "studio.html",
       "rungs": [
         "ide"
       ],
-      "port": 8715
+      "port": 8715,
+      "sovereign": true,
+      "reached_by": "serve",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     },
     {
       "id": "aab",
@@ -147,7 +205,6 @@
       "group": "make",
       "what": "paint a system as a typed graph over a closed six-kind vocabulary, oracle-gated",
       "repo": "zistgah/aab",
-      "mount": "static",
       "path": "index.html",
       "rungs": [
         "ide",
@@ -161,6 +218,15 @@
         "  no oracle, no glow — a node lights only when its oracle passes.",
         "",
         "Not sketching. A painted node is a claim with a test attached."
+      ],
+      "sovereign": true,
+      "reached_by": "static",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
       ]
     },
     {
@@ -170,7 +236,6 @@
       "group": "make",
       "what": "the shared virtual dome: one library, one world config per zistgah, never a fork",
       "repo": "zistgah/dome",
-      "mount": "dome",
       "path": "demo/index.html",
       "rungs": [
         "dome"
@@ -183,6 +248,15 @@
         "  Any code that branches on world identity is a redundancy defect.",
         "  Vehicles swap physics profiles through one flight seam, not three controllers.",
         "  The orrery reuses chakra-core's ephemeris — no second ephemeris engine."
+      ],
+      "sovereign": true,
+      "reached_by": "dome",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
       ]
     },
     {
@@ -192,7 +266,6 @@
       "group": "operate",
       "what": "the inventory: what exists, where, at what HEAD, in sync or not",
       "repo": "zistgah/estate",
-      "mount": "panel",
       "rungs": [
         "console",
         "ide"
@@ -224,6 +297,15 @@
         "",
         "Known live defect: _z_create_remote_if_needed is defined in canonical zops",
         "and never called. Create the remote explicitly before any seal."
+      ],
+      "sovereign": true,
+      "reached_by": "panel",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
       ]
     },
     {
@@ -233,7 +315,6 @@
       "group": "operate",
       "what": "mint, version, harvest, walk — the DOI layer",
       "repo": "project-ilm/misty-doi",
-      "mount": "panel",
       "rungs": [
         "console",
         "ide"
@@ -265,6 +346,15 @@
         "",
         "A new plate for an existing corpus is a VERSION, not a new deposit.",
         "Splitting a lineage is not undoable without the registrar."
+      ],
+      "sovereign": true,
+      "reached_by": "panel",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
       ]
     },
     {
@@ -274,7 +364,6 @@
       "group": "compose",
       "what": "the prompt operating system — build an artifact from nothing",
       "repo": "zistgah/genie",
-      "mount": "cli",
       "cli": "mez genie",
       "rungs": [
         "console",
@@ -288,6 +377,15 @@
         "",
         "Every prompt creates, verifies, executes, measures, falsifies or integrates",
         "an artifact. None of them merely describes one."
+      ],
+      "sovereign": true,
+      "reached_by": "cli",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
       ]
     },
     {
@@ -297,13 +395,49 @@
       "group": "operate",
       "what": "time: ten reckonings, computed, none of it looked up",
       "repo": "project-ilm/chakra",
-      "mount": "static",
       "path": "index.html",
       "rungs": [
         "ide",
         "dome"
       ],
-      "port": null
+      "port": null,
+      "sovereign": true,
+      "reached_by": "static",
+      "owns_its": [
+        "ontology",
+        "runtime",
+        "artifacts",
+        "evolution",
+        "users"
+      ]
     }
+  ],
+  "_architecture": [
+    "MEZ IS A LABORATORY, NOT A CONTAINER.",
+    "",
+    "GENIE, Kitab, HPS, ILM, the cyclers, robotics platforms, world models and simulators are",
+    "INDEPENDENT SYSTEMS. Each has its own ontology, runtime, artifacts, evolution and potentially",
+    "its own users. GENIE exists entirely without Mez. Kitab exists entirely without Mez. Mez",
+    "exists without either. That independence is desirable, not a gap to be closed.",
+    "",
+    "This file is therefore NOT an inventory of parts. It is a table of INTERFACES: how a system",
+    "that already exists on its own terms can be reached, exercised and composed from here.",
+    "",
+    "  INDEPENDENT EXISTENCE",
+    "        ↓",
+    "  STANDARDISED / ADAPTABLE INTERFACES",
+    "        ↓",
+    "  COMPOSITION  →  EXERCISE  →  OBSERVATION  →  SYNTHESIS  →  NEW ARTIFACT",
+    "",
+    "The arrows are BIDIRECTIONAL. The workbench can use GENIE; GENIE can use workbench",
+    "capabilities. Kitab can participate in an exercise; an exercise can exercise Kitab.",
+    "",
+    "AND SYNTHESIS DOES NOT MEAN INCORPORATION. GENIE + Kitab + a simulator may compose into",
+    "something new without either being modified. Where a genuinely reusable primitive falls out,",
+    "it is published back into the ecosystem as its own thing — not absorbed into the bench.",
+    "",
+    "So a component here is never 'inside' Mez. `reached_by` says how to talk to it; `sovereign`",
+    "says it answers to itself. A component that stopped existing would leave a hole in this table,",
+    "not a hole in Mez."
   ]
 }

@@ -75,6 +75,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   display:grid;place-items:center;color:#1a1109;font:700 .62rem/1 var(--mono)}
 .case b{display:block;font-weight:400;font-size:.95rem;letter-spacing:.02em}
 .case span{display:block;font:.6rem/1.25 var(--mono);color:var(--dim)}
+.shelf{display:flex;align-items:center;gap:.4rem;padding:.32rem .5rem;margin-bottom:.16rem;
+  text-decoration:none;color:var(--dim);font:.68rem/1.2 var(--mono);border-radius:2px;
+  border:1px solid transparent}
+.shelf:hover{border-color:rgba(201,151,63,.3);color:var(--parch)}
+.shelf b{font-weight:400}
+.shelf i{width:.42rem;height:.42rem;border-radius:50%;flex:0 0 auto;background:rgba(232,220,192,.16)}
+.shelf.live i{background:var(--verified);box-shadow:0 0 6px rgba(78,143,92,.7)}
+.shelf.present i{background:var(--brass)}
+.shelf.absent i{background:var(--seal)}
+.shelfnote{font:.62rem/1.4 var(--mono);color:var(--dim);padding:0 .5rem}
+#rail button.chip{cursor:pointer}
 
 /* ── the desk ────────────────────────────────────────────────────────── */
 #desk{position:relative;overflow:auto;padding:1.1rem 1.2rem 1.4rem}
@@ -202,7 +213,7 @@ pre.prompt{white-space:pre-wrap;font:11.5px/1.55 var(--mono);color:#3a2e1e;
     <span class=wordmark>MEZ</span>
     <span class=sub>Cognitive Workbench</span>
     <span class=sp></span>
-    <span class="chip local" id=boundary>local only</span>
+    <button class="chip local" id=boundary type=button title="probe the desk on this machine">local only</button>
     <span class=chip id=saved>saved</span>
     <div id=dens role=group aria-label="Presentation density"></div>
   </div>
@@ -247,7 +258,9 @@ async function boot() {
     return;
   }
   W = WORK.restore(flows);
-  density(); tray(); render();
+  density(); tray(); render(); shelf();
+  $('#boundary').onclick = shelf;
+  setInterval(shelf, 20000);
 }
 
 /* ── density: three projections of ONE semantic model, overridable per stage ── */
@@ -275,17 +288,51 @@ function tray() {
     t.append(b);
   }
   t.insertAdjacentHTML('beforeend',
-    '<div class=traylabel style="margin-top:.6rem">Implements</div><div id=stamps></div>');
+    '<div class=traylabel style="margin-top:.6rem">Implements</div><div id=stamps></div>' +
+    '<div class=traylabel style="margin-top:.7rem">On the estate</div><div id=estate></div>');
   const s = t.querySelector('#stamps');
   for (const st of STAMPS) {
     const e = document.createElement('button');
     e.className = 'stamp ' + st.id; e.type = 'button'; e.title = st.means;
     e.textContent = st.label;
     e.onclick = () => { const r = W.stamp(st.id); render(); note(r.note, r.ok ? 'good' : 'bad'); };
-    if (st.kind === 'layer') e.style.borderStyle = 'double';
     s.append(e);
   }
 }
+
+/* ── the estate shelf: what else exists, and whether it is answering here ──
+   Retrieved from components.json — the same registry the spine reads. Nothing is hardcoded, and a
+   component that is not answering is never dressed up as one that is. */
+async function shelf() {
+  const box = $('#estate'); if (!box) return;
+  let comps = [];
+  try { comps = (await (await fetch('components.json', { cache: 'no-store' })).json()).components || []; }
+  catch (e) { box.innerHTML = '<p class=shelfnote>The registry could not be read. That is unknown, not empty.</p>'; return; }
+  let live = {};
+  try {
+    const ac = new AbortController(); setTimeout(() => ac.abort(), 900);
+    const st = await (await fetch(DESK + '/api/state', { signal: ac.signal, cache: 'no-store' })).json();
+    live = Object.fromEntries(st.components.map(c => [c.id, c.status]));
+    $('#boundary').className = 'chip local';
+    $('#boundary').textContent = 'desk answering';
+  } catch (e) {
+    $('#boundary').className = 'chip';
+    $('#boundary').textContent = 'desk not running here';
+  }
+  box.innerHTML = '';
+  for (const c of comps) {
+    if (flows[c.id]) continue;                 /* the cyclers are already cases on the tray */
+    const a = document.createElement('a');
+    const own = (c.repo || '/').split('/');
+    a.className = 'shelf ' + (live[c.id] || 'unknown');
+    a.href = 'https://' + own[0] + '.github.io/' + own[1] + '/';
+    a.target = '_blank'; a.rel = 'noopener';
+    a.title = c.what + (live[c.id] ? ' — ' + live[c.id] : '');
+    a.innerHTML = '<i></i><b>' + esc(c.title) + '</b>';
+    box.append(a);
+  }
+}
+const DESK = 'http://127.0.0.1:7373';
 
 function render() {
   density();

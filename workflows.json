@@ -1,0 +1,540 @@
+{
+ "matba": {
+  "id": "matba",
+  "title": "MATBA",
+  "domain": "Print / Publication",
+  "sequence": [
+   "intake",
+   "inspect",
+   "organize",
+   "describe",
+   "compose",
+   "check",
+   "review",
+   "seal",
+   "publish",
+   "mint"
+  ],
+  "invariants": [
+   "No broken publication form reaches publication.",
+   "Preserve provenance and source relationships.",
+   "Publication is a deliberate gate; minting is a separate publication/identity capability."
+  ],
+  "input": "plates, source material, structured content",
+  "output": "publication package",
+  "stages": [
+   {
+    "id": "intake",
+    "title": "Intake",
+    "objective": "Receive the user\\'s source material as a publication work.",
+    "prompt": "You are executing the MATBA cycler, stage 'intake'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nReceive the user's source material as a publication work. Inventory\nevery supplied object without silently changing authorship, meaning,\norder, or provenance. Identify file types, declared versions,\nlanguages/scripts, intended audience if supplied, publication goal,\nand missing information. Do not infer that an absent item exists.\nReturn an intake manifest and a concise list of ambiguities that\nrequire user intention.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "inspect",
+    "title": "Inspect",
+    "objective": "Inspect the supplied publication materials for structural, semantic, and asset-level integrity.",
+    "prompt": "You are executing the MATBA cycler, stage 'inspect'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nInspect the supplied publication materials for structural, semantic,\nand asset-level integrity. Identify malformed files, missing assets,\nbroken references, inconsistent versions, unreadable material,\nduplicated content, and unresolved provenance. Distinguish observation\nfrom interpretation. Do not silently repair substantive content;\npropose repairs.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "organize",
+    "title": "Organize",
+    "objective": "Arrange the material into a coherent publication structure while preserving source identity and lineage.",
+    "prompt": "You are executing the MATBA cycler, stage 'organize'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nArrange the material into a coherent publication structure while\npreserving source identity and lineage. Propose sections, plates,\nfigures, appendices, metadata, asset directories, and ordering. Keep\nsource material traceable to its placement. Flag any reordering that\nchanges meaning.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "describe",
+    "title": "Describe",
+    "objective": "Construct publication metadata and descriptive context for the organized work: title, creator, version, language/script, domain, abstract/description, keywords, relationships, sources, license/consent where supplied, and artifact inventory.",
+    "prompt": "You are executing the MATBA cycler, stage 'describe'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nConstruct publication metadata and descriptive context for the\norganized work: title, creator, version, language/script, domain,\nabstract/description, keywords, relationships, sources,\nlicense/consent where supplied, and artifact inventory. Do not invent\nbibliographic facts.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "compose",
+    "title": "Compose",
+    "objective": "Compose the publication artifact from the approved structure and assets.",
+    "prompt": "You are executing the MATBA cycler, stage 'compose'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCompose the publication artifact from the approved structure and\nassets. Apply the requested presentation style and medium constraints.\nPreserve semantic content and provenance. Produce the target source\nrepresentation plus any required layout/asset manifest.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "check",
+    "title": "Check",
+    "objective": "Run structural and publication-integrity checks: references, assets, links, page/section structure, metadata consistency, file readability, required declarations, hashes/manifests where configured, and obvious rendering defects.",
+    "prompt": "You are executing the MATBA cycler, stage 'check'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nRun structural and publication-integrity checks: references, assets,\nlinks, page/section structure, metadata consistency, file readability,\nrequired declarations, hashes/manifests where configured, and obvious\nrendering defects. Return pass/fail findings with exact repair\ntargets.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "review",
+    "title": "Review",
+    "objective": "Present the assembled publication for human review.",
+    "prompt": "You are executing the MATBA cycler, stage 'review'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nPresent the assembled publication for human review. Summarize what\nchanged, what remains uncertain, and what will be published. Never\ntreat AI acceptance as human approval. Capture explicit revision,\napproval, or branch decisions.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "seal",
+    "title": "Seal",
+    "objective": "Create the final immutable-ready package state: version, manifest, hashes, provenance, evidence and publication metadata.",
+    "prompt": "You are executing the MATBA cycler, stage 'seal'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCreate the final immutable-ready package state: version, manifest,\nhashes, provenance, evidence and publication metadata. Apply a\nMisty/DoI desk stamp only to the corresponding semantic state; do not\nmint or publish merely because the seal stage was reached unless the\nuser authorizes it.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "publish",
+    "title": "Publish",
+    "objective": "Execute the declared publication method only after the publication gate is satisfied.",
+    "prompt": "You are executing the MATBA cycler, stage 'publish'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nExecute the declared publication method only after the publication\ngate is satisfied. Assemble the exact payload, metadata,\nrepository/package destination and release record. Report what will\nleave the local machine before transmission.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "mint",
+    "title": "Mint",
+    "objective": "Invoke Misty DoI or another configured identity/publication capability only when the user explicitly requests persistent publication identity.",
+    "prompt": "You are executing the MATBA cycler, stage 'mint'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nInvoke Misty DoI or another configured identity/publication capability\nonly when the user explicitly requests persistent publication\nidentity. Preserve concept/version relationships, package hashes and\nmetadata. Capture the resulting identity into the artifact manifest.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   }
+  ]
+ },
+ "awaz": {
+  "id": "awaz",
+  "title": "AWAZ",
+  "domain": "Audio",
+  "sequence": [
+   "intake",
+   "segment",
+   "transcribe",
+   "identify speakers",
+   "describe",
+   "cue",
+   "index",
+   "review",
+   "package",
+   "publish"
+  ],
+  "invariants": [
+   "Audio source is preserved.",
+   "Transcript is distinguishable from interpretation.",
+   "Speaker identities are not invented.",
+   "Timing/cue information must remain aligned to the actual audio."
+  ],
+  "input": "recording, audio sources, scripts",
+  "output": "cued audio publication",
+  "stages": [
+   {
+    "id": "intake",
+    "title": "Intake",
+    "objective": "Inventory the supplied audio and script materials.",
+    "prompt": "You are executing the AWAZ cycler, stage 'intake'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nInventory the supplied audio and script materials. Record duration,\nformat, channel layout if observable, sample characteristics if\navailable, declared language/script, supplied speaker information, and\nrelated artifacts. Preserve the original recording as the source\nartifact.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "segment",
+    "title": "Segment",
+    "objective": "Divide the recording into meaningful segments using observable audio boundaries and the user\\'s stated purpose.",
+    "prompt": "You are executing the AWAZ cycler, stage 'segment'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDivide the recording into meaningful segments using observable audio\nboundaries and the user's stated purpose. Preserve exact time ranges.\nDo not infer semantic meaning solely from pauses or acoustics.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "transcribe",
+    "title": "Transcribe",
+    "objective": "Produce a faithful transcript of the specified segment.",
+    "prompt": "You are executing the AWAZ cycler, stage 'transcribe'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nProduce a faithful transcript of the specified segment. Mark\nuncertainty, unintelligible passages, overlaps, non-speech events and\ntiming where useful. Do not silently normalize away meaningful speech\nfeatures. Separate transcript from interpretation.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "identify-speakers",
+    "title": "Identify Speakers",
+    "objective": "Associate speech segments with speaker labels using supplied identities or explicitly declared anonymous labels.",
+    "prompt": "You are executing the AWAZ cycler, stage 'identify speakers'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nAssociate speech segments with speaker labels using supplied\nidentities or explicitly declared anonymous labels. Do not invent\nnames or identities. Mark uncertain attribution and overlapping\nspeech.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "describe",
+    "title": "Describe",
+    "objective": "Create descriptive metadata for the audio artifact: title, participants as supplied, date/time if known, language/script, content description, source, context, recording conditions if known, rights/consent and related artifacts.",
+    "prompt": "You are executing the AWAZ cycler, stage 'describe'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCreate descriptive metadata for the audio artifact: title,\nparticipants as supplied, date/time if known, language/script, content\ndescription, source, context, recording conditions if known,\nrights/consent and related artifacts. Preserve uncertainty.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "cue",
+    "title": "Cue",
+    "objective": "Generate cue points and timing metadata for chapters, speaker changes, captions, musical events or other declared navigation needs.",
+    "prompt": "You are executing the AWAZ cycler, stage 'cue'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nGenerate cue points and timing metadata for chapters, speaker changes,\ncaptions, musical events or other declared navigation needs. All cues\nmust correspond to actual time positions in the source.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "index",
+    "title": "Index",
+    "objective": "Create a searchable index over transcript and declared audio events.",
+    "prompt": "You are executing the AWAZ cycler, stage 'index'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCreate a searchable index over transcript and declared audio events.\nPreserve source time offsets so every indexed item can return to the\noriginal recording.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "review",
+    "title": "Review",
+    "objective": "Present transcript, speaker labels, cues and index for human review.",
+    "prompt": "You are executing the AWAZ cycler, stage 'review'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nPresent transcript, speaker labels, cues and index for human review.\nHighlight uncertain segments and potential alignment errors. Do not\nconvert review suggestions into authoritative facts without approval.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "package",
+    "title": "Package",
+    "objective": "Assemble audio, transcript, captions if present, cue sheet, metadata, provenance and integrity information into a declared publication package.",
+    "prompt": "You are executing the AWAZ cycler, stage 'package'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nAssemble audio, transcript, captions if present, cue sheet, metadata,\nprovenance and integrity information into a declared publication\npackage. Validate that references and timings remain coherent.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "publish",
+    "title": "Publish",
+    "objective": "Publish only after explicit authorization.",
+    "prompt": "You are executing the AWAZ cycler, stage 'publish'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nPublish only after explicit authorization. Show destination and\nexternal-transmission boundary, then record the published package\nidentity and version.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   }
+  ]
+ },
+ "khwab": {
+  "id": "khwab",
+  "title": "KHWAB",
+  "domain": "Visual Media",
+  "sequence": [
+   "idea",
+   "world/context",
+   "visual language",
+   "storyboard",
+   "shot/scene construction",
+   "generation/acquisition",
+   "continuity",
+   "edit",
+   "review",
+   "package"
+  ],
+  "invariants": [
+   "Khwab is a visual-artifact family; a single image is only its smallest member.",
+   "Creative state belongs to the cycler, not an external model.",
+   "Preserve continuity across scenes/shots.",
+   "Do not claim provenance for files merely because they are visible locally."
+  ],
+  "input": "concept, source images, script, storyboard, generated media",
+  "output": "image → skit → short → feature → episodic series",
+  "stages": [
+   {
+    "id": "idea",
+    "title": "Idea",
+    "objective": "Convert the user\\'s creative intention into a visual work specification without prematurely fixing medium, style, scene count or technology.",
+    "prompt": "You are executing the KHWAB cycler, stage 'idea'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nConvert the user's creative intention into a visual work\nspecification without prematurely fixing medium, style, scene count or\ntechnology. Identify the intended experience, subject, narrative or\nnon-narrative purpose, audience if supplied, and desired output\nfamily. Preserve unresolved creative choices as parameters rather than\nguesses.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "world-context",
+    "title": "World/Context",
+    "objective": "Define the world, cultural context, time, place, environmental rules, social assumptions and relevant continuity facts required for the visual work.",
+    "prompt": "You are executing the KHWAB cycler, stage 'world/context'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine the world, cultural context, time, place, environmental rules,\nsocial assumptions and relevant continuity facts required for the\nvisual work. Keep cultural context explicit and avoid substituting\ngeneric Western defaults where the user has specified another\ncontext.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "visual-language",
+    "title": "Visual Language",
+    "objective": "Define the visual grammar: composition, palette, lighting, texture, camera language, spatial language, typography if relevant, motion language if relevant, reference traditions/styles, and transformation rules.",
+    "prompt": "You are executing the KHWAB cycler, stage 'visual language'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine the visual grammar: composition, palette, lighting, texture,\ncamera language, spatial language, typography if relevant, motion\nlanguage if relevant, reference traditions/styles, and transformation\nrules. Treat style as a parameterized configuration, not a vague style\nbutton.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "storyboard",
+    "title": "Storyboard",
+    "objective": "Turn the approved concept into a sequence of scenes/shots/frames appropriate to the artifact length.",
+    "prompt": "You are executing the KHWAB cycler, stage 'storyboard'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nTurn the approved concept into a sequence of scenes/shots/frames\nappropriate to the artifact length. For each unit specify purpose,\nsubject, action, setting, framing, continuity dependencies and\nrequired assets. Maintain a stable master spine.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "shot-scene-construction",
+    "title": "Shot/Scene Construction",
+    "objective": "Construct each shot/scene as a realizable specification.",
+    "prompt": "You are executing the KHWAB cycler, stage 'shot/scene\nconstruction'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nConstruct each shot/scene as a realizable specification. Track\ncharacters/objects, position, camera, lighting, environment, action,\ndialogue/text, sound references and continuity dependencies. Output\nstructured shot data plus a human-readable prompt.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "generation-acquisition",
+    "title": "Generation/Acquisition",
+    "objective": "Prepare and dispatch the stage-specific generation/acquisition prompt to the selected visual AI or local tool.",
+    "prompt": "You are executing the KHWAB cycler, stage 'generation/acquisition'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nPrepare and dispatch the stage-specific generation/acquisition prompt\nto the selected visual AI or local tool. Preserve the exact prompt\npacket, provider/model if known, user-supplied references,\nseed/settings when available, and returned artifact identity. Never\nclaim the cycler generated a file it did not receive.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "continuity",
+    "title": "Continuity",
+    "objective": "Compare the new visual material against the current visual state: character identity, costume, geometry, environment, lighting, camera grammar, narrative facts, temporal progression and other declared invariants.",
+    "prompt": "You are executing the KHWAB cycler, stage 'continuity'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCompare the new visual material against the current visual state:\ncharacter identity, costume, geometry, environment, lighting, camera\ngrammar, narrative facts, temporal progression and other declared\ninvariants. Identify continuity breaks and propose repair actions\nrather than silently rewriting.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "edit",
+    "title": "Edit",
+    "objective": "Assemble and transform the accepted visual assets into the current artifact form.",
+    "prompt": "You are executing the KHWAB cycler, stage 'edit'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nAssemble and transform the accepted visual assets into the current\nartifact form. For video, manage shot order, transitions, timing,\naudio references and continuity. For stills, manage composition and\nvariant selection. Preserve parent-child artifact lineage.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "review",
+    "title": "Review",
+    "objective": "Run creator/system review for coherence, context adherence, continuity, visual quality and edit friction.",
+    "prompt": "You are executing the KHWAB cycler, stage 'review'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nRun creator/system review for coherence, context adherence,\ncontinuity, visual quality and edit friction. Show raw output and\nchanges. Allow accept, refine, branch or return to an earlier stage.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "package",
+    "title": "Package",
+    "objective": "Assemble the visual artifact, source/reference declarations, recipe/creative DNA, execution trace, provenance, evaluation and delivery metadata.",
+    "prompt": "You are executing the KHWAB cycler, stage 'package'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nAssemble the visual artifact, source/reference declarations,\nrecipe/creative DNA, execution trace, provenance, evaluation and\ndelivery metadata. Support image, video, storyboard, project package\nand episodic forms.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   }
+  ]
+ },
+ "tilasm": {
+  "id": "tilasm",
+  "title": "TILASM",
+  "domain": "Immersive",
+  "sequence": [
+   "intent",
+   "space",
+   "stations",
+   "interaction",
+   "navigation",
+   "accessibility",
+   "prototype",
+   "test",
+   "revise",
+   "package"
+  ],
+  "invariants": [
+   "Maintain a station graph.",
+   "Define visitor actions and exits.",
+   "Accessibility, locomotion and comfort are first-class.",
+   "Physical-space requirements must be explicit."
+  ],
+  "input": "experience concept",
+  "output": "AR/VR/XR work",
+  "stages": [
+   {
+    "id": "intent",
+    "title": "Intent",
+    "objective": "Define the intended immersive experience: what the participant should encounter, understand, feel, do, change, discover or remember.",
+    "prompt": "You are executing the TILASM cycler, stage 'intent'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine the intended immersive experience: what the participant should\nencounter, understand, feel, do, change, discover or remember.\nIdentify audience, duration, modality, embodiment assumptions and\nsuccess criteria. Preserve open design choices.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "space",
+    "title": "Space",
+    "objective": "Translate the experience intent into a spatial model: rooms/regions, boundaries, scale, landmarks, portals, environmental states, spatial relationships and physical-space constraints.",
+    "prompt": "You are executing the TILASM cycler, stage 'space'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nTranslate the experience intent into a spatial model: rooms/regions,\nboundaries, scale, landmarks, portals, environmental states, spatial\nrelationships and physical-space constraints. Keep virtual and\nphysical coordinates distinct.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "stations",
+    "title": "Stations",
+    "objective": "Define the station graph: each meaningful experience station, its entry conditions, content, available actions, state changes, exits and dependencies.",
+    "prompt": "You are executing the TILASM cycler, stage 'stations'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine the station graph: each meaningful experience station, its\nentry conditions, content, available actions, state changes, exits and\ndependencies. Ensure every station has reachable transitions or is\nexplicitly an intentional terminal.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "interaction",
+    "title": "Interaction",
+    "objective": "Define participant interactions, affordances, inputs, outputs, object behaviors, state changes and feedback.",
+    "prompt": "You are executing the TILASM cycler, stage 'interaction'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine participant interactions, affordances, inputs, outputs, object\nbehaviors, state changes and feedback. Distinguish intended\ninteraction from implementation details that are not yet chosen.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "navigation",
+    "title": "Navigation",
+    "objective": "Define locomotion and navigation behavior, including teleportation, continuous movement, seated/standing options, orientation, exits, reset/recovery and spatial boundaries.",
+    "prompt": "You are executing the TILASM cycler, stage 'navigation'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine locomotion and navigation behavior, including teleportation,\ncontinuous movement, seated/standing options, orientation, exits,\nreset/recovery and spatial boundaries. Identify motion-sickness\nrisks.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "accessibility",
+    "title": "Accessibility",
+    "objective": "Specify accessibility requirements for vision, hearing, mobility, cognition, language, captions, comfort, alternative controls and non-immersive fallback.",
+    "prompt": "You are executing the TILASM cycler, stage 'accessibility'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nSpecify accessibility requirements for vision, hearing, mobility,\ncognition, language, captions, comfort, alternative controls and\nnon-immersive fallback. Treat accessibility as part of the experience\ncontract, not post-processing.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "prototype",
+    "title": "Prototype",
+    "objective": "Build the smallest executable representation that can test the experience logic and spatial/interaction assumptions.",
+    "prompt": "You are executing the TILASM cycler, stage 'prototype'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nBuild the smallest executable representation that can test the\nexperience logic and spatial/interaction assumptions. Preserve station\ngraph and state model.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "test",
+    "title": "Test",
+    "objective": "Test navigation, interaction, spatial logic, comfort, accessibility, state transitions and failure recovery.",
+    "prompt": "You are executing the TILASM cycler, stage 'test'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nTest navigation, interaction, spatial logic, comfort, accessibility,\nstate transitions and failure recovery. Record actual evidence rather\nthan asserting success from design intent.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "revise",
+    "title": "Revise",
+    "objective": "Use test evidence and participant feedback to revise the experience graph, interaction model or assets.",
+    "prompt": "You are executing the TILASM cycler, stage 'revise'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nUse test evidence and participant feedback to revise the experience\ngraph, interaction model or assets. Preserve the prior version and\nrecord what changed and why.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "package",
+    "title": "Package",
+    "objective": "Assemble the XR/AR/VR package, asset manifest, runtime requirements, station graph, controls, accessibility declarations, test evidence and version/provenance metadata.",
+    "prompt": "You are executing the TILASM cycler, stage 'package'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nAssemble the XR/AR/VR package, asset manifest, runtime requirements,\nstation graph, controls, accessibility declarations, test evidence and\nversion/provenance metadata.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   }
+  ]
+ },
+ "pench": {
+  "id": "pench",
+  "title": "PENCH",
+  "domain": "Embodied / Cyberphysical",
+  "sequence": [
+   "objective",
+   "system model",
+   "environment",
+   "constraints",
+   "simulation",
+   "control",
+   "safety envelope",
+   "hardware mapping",
+   "test",
+   "sim2real / real2sim evidence",
+   "deployment",
+   "monitoring"
+  ],
+  "invariants": [
+   "Never invent operating limits.",
+   "Unknown limits must be explicitly marked NOT ESTABLISHED.",
+   "Simulation is not hardware evidence.",
+   "A sim2real claim requires actual hardware evidence."
+  ],
+  "input": "physical objective, simulation, machine description",
+  "output": "embodied or cyberphysical system",
+  "stages": [
+   {
+    "id": "objective",
+    "title": "Objective",
+    "objective": "State the physical objective precisely: what the system must do, for whom, under what environment, with what success criteria.",
+    "prompt": "You are executing the PENCH cycler, stage 'objective'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nState the physical objective precisely: what the system must do, for\nwhom, under what environment, with what success criteria. Separate\ndesired behavior from assumptions and unknowns.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "system-model",
+    "title": "System Model",
+    "objective": "Construct a machine/system model including components, interfaces, state variables, actuators, sensors, control relationships, dependencies and observable outputs.",
+    "prompt": "You are executing the PENCH cycler, stage 'system model'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nConstruct a machine/system model including components, interfaces,\nstate variables, actuators, sensors, control relationships,\ndependencies and observable outputs. Mark all unverified assumptions.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "environment",
+    "title": "Environment",
+    "objective": "Define the operating environment: geometry, materials, loads, temperature, power, communications, human presence, terrain, fluids or other relevant conditions.",
+    "prompt": "You are executing the PENCH cycler, stage 'environment'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine the operating environment: geometry, materials, loads,\ntemperature, power, communications, human presence, terrain, fluids or\nother relevant conditions. Distinguish supplied measurements from\nassumptions.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "constraints",
+    "title": "Constraints",
+    "objective": "Enumerate functional, physical, regulatory, resource, timing, safety and interoperability constraints.",
+    "prompt": "You are executing the PENCH cycler, stage 'constraints'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nEnumerate functional, physical, regulatory, resource, timing, safety\nand interoperability constraints. Do not fabricate tolerances, limits\nor certification status. Unknown limits are NOT ESTABLISHED.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "simulation",
+    "title": "Simulation",
+    "objective": "Construct and execute the appropriate simulation model.",
+    "prompt": "You are executing the PENCH cycler, stage 'simulation'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nConstruct and execute the appropriate simulation model. Record\nparameters, software/tool versions, initial conditions, runs, outputs\nand limitations. Do not present simulation output as physical\nevidence.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "control",
+    "title": "Control",
+    "objective": "Design the control logic and state transitions.",
+    "prompt": "You are executing the PENCH cycler, stage 'control'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDesign the control logic and state transitions. Specify inputs,\noutputs, feedback, timing, failure states and recovery. Identify where\nformal verification, tests or hardware-in-loop evidence is required.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "safety-envelope",
+    "title": "Safety Envelope",
+    "objective": "Define the known safety envelope and explicit unknowns.",
+    "prompt": "You are executing the PENCH cycler, stage 'safety envelope'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine the known safety envelope and explicit unknowns. Identify\nhazards, interlocks, fail-safe states, emergency behavior, human\nproximity conditions and gates. A safety claim requires the\nappropriate evidence.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "hardware-mapping",
+    "title": "Hardware Mapping",
+    "objective": "Map the abstract model to actual hardware components and interfaces.",
+    "prompt": "You are executing the PENCH cycler, stage 'hardware mapping'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nMap the abstract model to actual hardware components and interfaces.\nRecord exact components, versions, calibration assumptions,\ncommunication interfaces and unresolved substitutions.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "test",
+    "title": "Test",
+    "objective": "Define and execute tests against explicit acceptance criteria.",
+    "prompt": "You are executing the PENCH cycler, stage 'test'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine and execute tests against explicit acceptance criteria. Capture\nactual measurements, runs, environmental conditions, failures and\nevidence. Never infer hardware success from simulation alone.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "sim2real-real2sim-evidence",
+    "title": "Sim2Real / Real2Sim Evidence",
+    "objective": "Compare simulation and physical observations.",
+    "prompt": "You are executing the PENCH cycler, stage 'sim2real / real2sim\nevidence'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCompare simulation and physical observations. Quantify or describe\ndiscrepancies, identify model deficiencies, and record what evidence\nsupports or fails to support transfer between domains.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "deployment",
+    "title": "Deployment",
+    "objective": "Prepare deployment only after required safety/evidence gates.",
+    "prompt": "You are executing the PENCH cycler, stage 'deployment'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nPrepare deployment only after required safety/evidence gates. Produce\nmachine-readable configuration, installation steps, rollback behavior\nand provenance. Require explicit authorization for physical\ndeployment.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "monitoring",
+    "title": "Monitoring",
+    "objective": "Define post-deployment observability: telemetry, health state, alerts, drift, failure logging, maintenance and rollback.",
+    "prompt": "You are executing the PENCH cycler, stage 'monitoring'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDefine post-deployment observability: telemetry, health state, alerts,\ndrift, failure logging, maintenance and rollback. Preserve evidence\nand version continuity.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   }
+  ]
+ },
+ "yadein": {
+  "id": "yadein",
+  "title": "YADEIN",
+  "domain": "Personal Record / Memory",
+  "sequence": [
+   "deposit",
+   "preserve",
+   "describe",
+   "cue",
+   "index",
+   "organize",
+   "review",
+   "consent gate",
+   "export",
+   "optional publication"
+  ],
+  "invariants": [
+   "Event time is not writing time.",
+   "Date uncertainty is preserved.",
+   "Recording does not become interpretation.",
+   "People are not renamed beyond source material.",
+   "Publication is opt-in.",
+   "Private content may remain private.",
+   "Withheld material can be counted without exposing it."
+  ],
+  "input": "diary entry, recording, image, document, multimodal life material",
+  "output": "structured, privacy-controlled memory artifact",
+  "stages": [
+   {
+    "id": "deposit",
+    "title": "Deposit",
+    "objective": "Receive the supplied memory material as a deposit.",
+    "prompt": "You are executing the YADEIN cycler, stage 'deposit'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nReceive the supplied memory material as a deposit. Record what was\nactually supplied, its source, file identity, declared date/time,\ncreation/modification metadata if available, and the user's stated\ncontext. Do not infer that the material represents a complete event or\nlife episode.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "preserve",
+    "title": "Preserve",
+    "objective": "Create a preservation record for the original material.",
+    "prompt": "You are executing the YADEIN cycler, stage 'preserve'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCreate a preservation record for the original material. Preserve\nbytes/content, hashes, source identity, timestamps and version. Do not\nalter the original deposit during normalization.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "describe",
+    "title": "Describe",
+    "objective": "Describe the material without turning description into interpretation.",
+    "prompt": "You are executing the YADEIN cycler, stage 'describe'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nDescribe the material without turning description into interpretation.\nRecord observable people/objects/events, supplied labels,\nlanguage/script, media type and contextual notes. Preserve uncertainty\nand source wording.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "cue",
+    "title": "Cue",
+    "objective": "Create retrieval cues: names/labels as supplied, places, topics, dates/ranges, events, media segments and user-provided associations.",
+    "prompt": "You are executing the YADEIN cycler, stage 'cue'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCreate retrieval cues: names/labels as supplied, places, topics,\ndates/ranges, events, media segments and user-provided associations.\nMark inferred cues separately from source-derived cues.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "index",
+    "title": "Index",
+    "objective": "Create a searchable index over the memory deposit while preserving links to the original source.",
+    "prompt": "You are executing the YADEIN cycler, stage 'index'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nCreate a searchable index over the memory deposit while preserving\nlinks to the original source. Do not expose private material merely\nbecause it is indexed.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "organize",
+    "title": "Organize",
+    "objective": "Organize deposits into collections, events, periods or themes according to explicit user rules.",
+    "prompt": "You are executing the YADEIN cycler, stage 'organize'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nOrganize deposits into collections, events, periods or themes\naccording to explicit user rules. Preserve the distinction between\nevent time, writing time, import time and organization time.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "review",
+    "title": "Review",
+    "objective": "Show the proposed memory representation and highlight anything inferred, ambiguous or potentially sensitive.",
+    "prompt": "You are executing the YADEIN cycler, stage 'review'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nShow the proposed memory representation and highlight anything\ninferred, ambiguous or potentially sensitive. Allow correction,\nsuppression, private marking and deletion/withholding decisions.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "consent-gate",
+    "title": "Consent Gate",
+    "objective": "Require explicit consent for any sharing, publication, identity exposure or external transmission.",
+    "prompt": "You are executing the YADEIN cycler, stage 'consent gate'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nRequire explicit consent for any sharing, publication, identity\nexposure or external transmission. Make the exact material and\ndestination visible. A lack of response is not consent.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "export",
+    "title": "Export",
+    "objective": "Export the selected memory subset with provenance, privacy classification, consent state, integrity information and references back to source material.",
+    "prompt": "You are executing the YADEIN cycler, stage 'export'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nExport the selected memory subset with provenance, privacy\nclassification, consent state, integrity information and references\nback to source material. Do not export withheld content.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention."
+   },
+   {
+    "id": "optional-publication",
+    "title": "Optional Publication",
+    "objective": "Only if explicitly authorized, prepare and publish the selected memory artifact.",
+    "prompt": "You are executing the YADEIN cycler, stage 'optional publication'.\nUse only the supplied work context and declared artifacts. Preserve\nprovenance.\nOnly if explicitly authorized, prepare and publish the selected memory\nartifact. Preserve privacy settings, provenance and consent record;\nsupport withdrawal or visibility changes where the publication system\npermits.\nReturn:\n1. a concise human-readable result;\n2. a structured stage result suitable for the Work IR;\n3. unresolved questions/ambiguities;\n4. validation status;\n5. recommended next stage(s);\n6. evidence/provenance references.\nNever silently invent missing facts. If the stage requires human\nintention, stop at the gate and ask for that intention.\n\n# 9. GENIE --- CREATIVE INTELLIGENCE ABOVE THE CYCLERS\n\nGENIE is not another one of the six media cyclers. It is the creative\nintelligence/orchestration layer that can select, compose, parameterize\nand drive cyclers. The retrieved creative architecture describes GENIE\nas spanning fiction, poetry, song/music, painting/illustration, dance,\nsimulation/virtual worlds, world-building, persistent creative identity\nand creative research; it also defines a Generate → Select → Evaluate →\nTransform → Realize → Observe → Remember loop.\nfileciteturn0file5L319-L321\n\nThe visual/creative corpus defines creative configuration as\nparameterized space, with variables such as Plot, Framework,\nAgents/Characters, Cultural Context, Genre, Domain, Medium/Material,\nStyle/Transformation and Creative Method/Process.\nfileciteturn0file4L433-L439\n\n-   GENIE must preserve creative state independently of the external AI\n    provider.\n\n-   A user may choose ChatGPT, Claude, Gemini or another provider; the\n    provider executes a prompt packet, while the cycler/GENIE retains\n    state.\n\n-   Creative work should support narrative, visual, auditory, kinetic\n    and world/simulation modalities.\n\n-   Creative state must be parameterizable and forkable.\n\n-   Recipe/creative DNA should be automatically carried into the\n    artifact and be available for forking.\n\n-   Evaluation should support coherence, context adherence and edit\n    friction at minimum; other domain-specific evaluation can be added.\n\n# 10. CREATIVE CONFIGURATION / RECIPE CARD\n\nS = f(P, F, A, C, G, D, M, T, R)\n\nP = Plot\nF = Framework\nA = Agents / Characters\nC = Cultural Context\nG = Genre\nD = Creative Domain\nM = Medium / Material\nT = Style / Transformation\nR = Creative Method / Process\n\nDo not expose all parameters by default. In Easy mode, GENIE infers or\nsuggests them. In Mid mode, show the active subset. In Pro mode, expose\nthe complete recipe and permit parameter-level editing/forking.\n\n# 11. MISTY DoI DESK STAMPS\n\n-   Render provenance/identity states as physical-looking stamps/seals\n    that can be dragged onto artifacts.\n\n-   A stamp is a UI projection of semantic metadata; the actual\n    DOI/provenance state lives in the artifact manifest.\n\n-   Do not imply that applying a visual stamp alone mints a DOI.\n\n-   Separate local archival/sealing from public publication/minting.\n\n-   Support Concept DOI / Version DOI relationships where the underlying\n    Misty DoI capability provides them.\n\n-   Show the publication/external trust boundary before minting or\n    publishing.\n\nThe retrieved architecture states that Misty DoI is a publication\ncapability rather than the definition of every workflow, and a workflow\nmay terminate locally, privately, in a repository, in deployment, public\npublication, or DOI. fileciteturn2file10L1355-L1368\n\n# 12. ARTIFACT + PROVENANCE MODEL\n\nartifact:\nid\ntitle\ncreator\ncreated\nmodified\nlanguage\nscripts\ndomain\nworkflow\nversion\ncontent:\nmedia_type\nprofile\nfiles\nprovenance:\nsource\nparent_artifacts\ngenerated_by\nhuman_edits\nai_assistance\nintegrity:\nhash\nalgorithm\nevidence:\nclaims\nsources\ntests\nruns\npermissions:\nvisibility\nlicense\nconsent\npublication:\nrepository\ndoi\n\nThis manifest shape is retrieved from the indexed architecture.\nfileciteturn3file1L269-L318\n\n# 13. FILE/ARTIFACT UX\n\n-   Text response: clipboard/paste path, with optional automatic\n    clipboard capture.\n\n-   Image/audio/video/3D/data/code: first-class local artifact boundary\n    with file picker/drop zone.\n\n-   Never assume a visible local file was generated by the immediately\n    preceding AI operation.\n\n-   Show underlying file location and allow user selection.\n\n-   Maintain provenance separately from filesystem visibility.\n\n-   Preview artifacts on the desk where practical.\n\n-   Every accepted artifact should be capable of being stamped, forked,\n    transformed, packaged, exported or returned as context to a later\n    stage.\n\nThe retrieved corpus explicitly states text vs non-text artifact\nhandling and the invariant that filesystem visibility is not provenance.\nfileciteturn2file6L598-L598\n\n# 14. PREDICTIVE NEXT-STEP UX\n\n-   After every accepted stage result, calculate candidate next stages\n    from workflow graph + current state + available capabilities + user\n    intent + constraints.\n\n-   Present one primary predicted next action and a small number of\n    alternatives.\n\n-   Do not force a predicted step when the system crosses a human\n    authority boundary.\n\n-   If ambiguity is material, enter CLARIFY rather than guessing.\n\n-   If evidence is missing, route to INVESTIGATE/RESEARCH.\n\n-   If validation fails, route to REPAIR.\n\n-   If approved, route to PACKAGE/PUBLISH/DEPLOY as appropriate.\n\n-   The UI should feel like predictive text completion at the workflow\n    level: the system keeps the sequence moving until an actual\n    intention boundary appears.\n\n# 15. SELECTIVE PRO CONTROL\n\n-   Every stage is an addressable object with a presentation density\n    property.\n\n-   Stage density can be changed without changing workflow state.\n\n-   Simple: stage title + one primary action.\n\n-   Mid: stage prompt preview + relevant inputs + artifact result + next\n    action.\n\n-   Pro: complete stage contract, parameters, context, prompt, expected\n    schema, provider, evidence, validation, provenance, state\n    transitions and capability bindings.\n\n-   For image/video stages, the Pro inspector should expose\n    media-specific properties only when those stages are selected.\n\n-   The right-side properties panel must be contextual, not permanently\n    cluttered.\n\n-   A user can pin a stage in Pro mode while the rest of the cycler\n    remains Mid or Easy.\n\n# 16. DELIVERY / LOCAL ESTATE MANAGEMENT\n\n-   Treat repositories, local clones, datasets, models, environments,\n    packages, build outputs and artifacts as local estate resources.\n\n-   Provide an Estate toolbox separate from the media cyclers.\n\n-   Support repository discovery, clone, pull, status, diff, build,\n    test, package and publish capabilities through adapters.\n\n-   Delivery targets should be declarative: installer, Git\n    repository/GitHub, PyPI, archive, container, dataset package,\n    publication package, local deployment, etc.\n\n-   Never push, publish, mint, deploy or upload without a visible\n    trust-boundary gate.\n\n-   Keep credentials outside artifacts and source repositories.\n\n-   Package the work with manifest, provenance, tests, hashes and\n    declared dependencies.\n\n-   For publication, integrate Matba + Kitab + Misty DoI where\n    appropriate.\n\nThe architecture explicitly defines trust boundaries for local\noperations, user-approved external operations, automated external\noperations, publication and physical deployment.\nfileciteturn2file8L949-L970\n\n# 17. IMPLEMENTATION REPOSITORY SHAPE\n\nmez/\n├── core/\n│ ├── work-ir/\n│ ├── work-api/\n│ ├── context/\n│ ├── provenance/\n│ ├── artifact/\n│ ├── gates/\n│ └── capabilities/\n├── cycler/\n│ ├── core/\n│ ├── prompt/\n│ ├── capture/\n│ ├── provider/\n│ ├── mime/\n│ └── ui/\n├── cyclers/\n│ ├── matba/\n│ ├── awaz/\n│ ├── khwab/\n│ ├── tilasm/\n│ ├── pench/\n│ └── yadein/\n├── genie/\n├── ui/\n│ ├── presentation/\n│ ├── desk/\n│ ├── toolbox/\n│ ├── spinner/\n│ ├── stage/\n│ ├── inspector/\n│ └── stamps/\n├── providers/\n│ ├── clipboard/\n│ ├── chatgpt/\n│ ├── claude/\n│ ├── gemini/\n│ └── local-http/\n├── estate/\n├── delivery/\n└── tests/\n\nThis mirrors the retrieved recommendation to keep the shared substrate\nsmall: cycler-core, context, prompt, capture, provider, artifact, MIME,\nprovenance, gate, UI, i18n and accessibility libraries.\nfileciteturn1file6L687-L708\n\n# 18. CLAUDE'S IMPLEMENTATION RULES\n\n1.  Do not redesign the architecture while implementing the UI.\n\n2.  Do not turn Mez into a chatbot dashboard.\n\n3.  Do not turn the desk into a kanban board.\n\n4.  Do not make the cycler itself domain-aware.\n\n5.  Do not merge the six workflows into a single generic workflow.\n\n6.  Do not hard-code AI-provider semantics into cycler logic.\n\n7.  Do not require an API key for baseline operation.\n\n8.  Do not hide the clipboard/external-AI path because it is less\n    automated; it is the default zero-credential delivery model.\n\n9.  Do not encode prompt text inside presentation components.\n\n10. Do not use one giant prompt for an entire workflow.\n\n11. Do not make Easy/Pro separate implementations.\n\n12. Do not make the Pro inspector a second semantic model.\n\n13. Do not infer provenance from filesystem location.\n\n14. Do not infer that an AI generated an artifact merely because the\n    user opened the artifact after an AI handoff.\n\n15. Do not silently publish, push, upload, mint, deploy, remember or\n    expose private content.\n\n16. Do not fabricate evidence, operating limits, identities, dates,\n    sources, metadata or publication status.\n\n17. Do not treat AI output as authoritative merely because it passed a\n    syntactic validation.\n\n18. Preserve human gates.\n\n19. Preserve workflow state and provenance across external AI handoffs.\n\n20. Implement the smallest reusable primitive that satisfies the\n    requirement; do not create a monolithic agent/workflow engine.\n\n21. Every new cycler must be addable through a declaration/registration\n    mechanism without modifying the core cycler.\n\n22. Every stage must be independently addressable and renderable.\n\n23. Every artifact must remain a first-class object after leaving the\n    stage.\n\n24. Every presentation must be replaceable without changing the Work IR.\n\n25. The desk should make the complexity progressively available rather\n    than force it on the user.\n\nThese rules directly follow the retrieved architectural laws: minimum\nreusable component, explicit contract/context, independent workflows,\nhuman authority, and no giant universal workflow.\nfileciteturn1file4L300-L327 fileciteturn1file11L1085-L1160\n\n# 19. ACCEPTANCE TESTS FOR THE UI\n\n-   A new user can open Mez and immediately understand that the central\n    object is a desk.\n\n-   A cycler can be dragged/placed onto the desk as a toolbox.\n\n-   Opening a toolbox reveals its stages without leaving the desk.\n\n-   The user can run a stage using the zero-credential external-AI path.\n\n-   The prompt can be copied/seeded to ChatGPT, Claude or Gemini.\n\n-   The returned text can be captured without an API integration.\n\n-   A returned image/video/audio file can be added as a local artifact.\n\n-   The system preserves the stage and artifact state across the\n    handoff.\n\n-   The next-stage prediction appears automatically.\n\n-   The user can override the prediction.\n\n-   A failed validation can route to repair.\n\n-   An ambiguous state can route to clarification.\n\n-   A missing-evidence state can route to investigation.\n\n-   A user can expand only one stage into Pro mode.\n\n-   Image/video properties appear only when their stage is selected.\n\n-   Misty DoI can appear as a physical stamp on an artifact.\n\n-   Applying a visual stamp does not falsely imply that a DOI has been\n    minted.\n\n-   The same work can be represented in CLI and Pro UI without semantic\n    divergence.\n\n-   The same workflow can be rendered at Easy, Mid and Pro densities.\n\n-   A new cycler can be registered without modifying core cycler\n    execution.\n\n-   External transmission, publication, Git push, DOI mint and\n    deployment display explicit trust boundaries.\n\n-   The desk can package a work for a local archive or declared delivery\n    target.\n\n# 20. FINAL CLAUDE BRIEF --- COPY THIS AS THE MASTER IMPLEMENTATION INSTRUCTION\n\nBuild Mez as a local-first cognitive workbench whose primary visual\nmetaphor is an actual regal desk.\n\nDo not build a dashboard. Do not build a generic chatbot. Do not\nflatten the cyclers into a universal workflow. Do not hard-code an AI\nvendor.\n\nThe semantic architecture is already defined. Your job is to implement\nits presentation and interaction faithfully.\n\nThe central desk is the persistent work surface. Cyclers are toolboxes\nthat can be placed on the desk. Opening a toolbox reveals its stages.\nEach stage is an executable/configurable work object carrying its own\ncontext, curated prompt template, expected output, validation,\nevidence requirements, gate and next-stage behavior.\n\nImplement three density projections over the same semantic model:\n1. Easy: spinner/wheel cycler; one meaningful action per transition.\n2. Mid: desk + toolbox + visible stages + contextual controls and\nartifact handling.\n3. Pro: desk + open toolbox + stages as objects + full right-side\nproperty inspector, workflow state,\nprompt/context/provenance/evidence/capability details.\n\nAllow density to vary per stage. A user may remain in spinner mode and\nexpand only an image/video stage into Pro controls.\n\nThe baseline product requires NO AI API KEY. Default external-AI mode\nis local prompt construction plus clipboard/URL-seeded handoff to a\nuser-selected ChatGPT, Claude, Gemini or other AI. The cycler retains\nstate; the external model does not own the workflow. Support local and\nconfigured HTTP providers as optional adapters.\n\nImplement the six domain cyclers exactly as declared in the\nspecification:\nMATBA: intake → inspect → organize → describe → compose → check →\nreview → seal → publish → mint.\nAWAZ: intake → segment → transcribe → identify speakers → describe →\ncue → index → review → package → publish.\nKHWAB: idea → world/context → visual language → storyboard →\nshot/scene construction → generation/acquisition → continuity → edit →\nreview → package.\nTILASM: intent → space → stations → interaction → navigation →\naccessibility → prototype → test → revise → package.\nPENCH: objective → system model → environment → constraints →\nsimulation → control → safety envelope → hardware mapping → test →\nsim2real/real2sim evidence → deployment → monitoring.\nYADEIN: deposit → preserve → describe → cue → index → organize →\nreview → consent gate → export → optional publication.\n\nUse the stage prompts in this document as implementation templates.\nBuild prompts dynamically from system contract + workflow contract +\nstage contract + current context + relevant artifacts + user intent +\nconstraints + expected output schema + evidence requirements +\nsafety/privacy rules.\n\nGENIE is the creative intelligence/orchestration layer above these\ncyclers. It can select and compose workflows and preserve creative\nstate across external AI execution. Support parameterized creative\nconfiguration and forkable recipe/DNA.\n\nMisty DoI is a publication/identity capability and must be visible on\nthe desk as stamps/seals. A stamp is a UI projection of semantic\nstate; it is not itself a DOI minting operation.\n\nArtifacts are first-class objects. Preserve provenance, hashes,\nevidence, permissions, consent, publication and DOI relationships.\nNever infer provenance merely from filesystem visibility.\n\nThe desk must also expose an Estate/Delivery toolbox for local\nrepositories, clones, packages, environments, artifacts and delivery\ntargets such as installers, GitHub repositories, PyPI packages,\narchives, containers and publication packages. Every external boundary\nrequires explicit authorization or an explicitly configured policy.\n\nMost importantly: preserve the separation between presentation,\nUX/session semantics, Work Interaction API, semantic representation/IR\nand execution. CLI, Easy, Mid, Pro, 3D, AR, VR and XR are projections\nof the same underlying work representation.\n\nMake the UI beautiful, tactile, regal and immediately understandable.\nMake the underlying system rigorous, typed, provenance-aware and\ncomposable. The surface should feel simple because the architecture is\ndoing the complexity underneath it.\n\n# 21. RETRIEVED CORPUS ANCHORS\n\nUse these as implementation authority when a UI choice conflicts with an\nad-hoc interpretation:\n\n-   Zistgah Adaptive Cycler Architecture: common cycler is\n    infrastructure, workflows remain independent; explicit\n    contracts/context; human authority. fileciteturn1file4L300-L327\n\n-   Cycler primitive and adaptive workflow: prompt assembly, response\n    capture, validation, branching, loops, repair, clarification,\n    investigation and gates. fileciteturn1file0L27-L42\n    fileciteturn1file5L433-L473\n\n-   Prompt layering and provider neutrality.\n    fileciteturn2file7L692-L720 fileciteturn2file8L911-L945\n\n-   Presentation configuration and trust boundaries.\n    fileciteturn2file4L406-L456 fileciteturn2file8L949-L970\n\n-   Six domain cyclers and their canonical sequences.\n    fileciteturn3file0L36-L224\n\n-   Artifact manifest and MIME semantics.\n    fileciteturn3file1L242-L318\n\n-   Misty DoI and TransEg integration.\n    fileciteturn2file10L1355-L1380\n\n-   Creative cycler, creative algebra, external-AI interoperability,\n    originality and Kitab lineage. fileciteturn2file6L598-L598\n\n-   Khwab visual creative journey and its specific stage vocabulary.\n    fileciteturn3file5L633-L640\n\n# 22. IMPLEMENTATION PRIORITY\n\n26. Implement the desk shell and visual object model.\n\n27. Implement the semantic Work/Artifact model and Work Interaction API.\n\n28. Implement the generic cycler protocol and stage object.\n\n29. Implement clipboard + external-AI handoff first; no-key baseline\n    must work end-to-end.\n\n30. Implement artifact capture for text and files.\n\n31. Implement Mid-level toolbox/stage UI.\n\n32. Implement stage-level density switching.\n\n33. Implement Pro property inspector.\n\n34. Implement Misty DoI stamp projection.\n\n35. Implement the six cycler declarations and stage prompts.\n\n36. Implement predictive next-stage routing, clarification, repair and\n    investigation.\n\n37. Implement Estate/Delivery capabilities and trust-boundary gates.\n\n38. Add Easy spinner projection.\n\n39. Add additional presentation adapters only after the semantic model\n    and Work API are stable.\n\nEnd of specification."
+   }
+  ]
+ }
+}
